@@ -4,3 +4,4 @@ enum MODE{
 };
 
 char * getModeName(int mode);
+void parseArgs(char * argv[]);

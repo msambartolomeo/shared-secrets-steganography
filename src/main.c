@@ -18,6 +18,14 @@ int main(int argc, char * argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    parseArgs(argv);
+    
+    return 0;
+}
+
+// Utils
+
+void parseArgs(char * argv[]){
     if(strcmp(argv[1], "-d") == 0){
         mode = DECODE;
     }
@@ -46,7 +54,7 @@ int main(int argc, char * argv[]) {
     k = aux_k;
 
     // ¿Validación de nombre de directorio? ¿Que termine en '/' capaz?
-
+    // src: https://stackoverflow.com/questions/1121383/counting-the-number-of-files-in-a-directory-using-c
     int fileCount = 0;
     DIR * dirp = opendir(argv[4]);
     if(dirp == NULL){
@@ -72,7 +80,6 @@ int main(int argc, char * argv[]) {
 
 
     printf("Arguments: %s %s %d %s\n", getModeName(mode), filename, k, outputDir);
-    return 0;
 }
 
 char * getModeName(int mode){
