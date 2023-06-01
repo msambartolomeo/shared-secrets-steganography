@@ -17,6 +17,12 @@ int main(void) {
     uint8_t** shadows = image_processing(image, cant);
 } */
 
+void free_blocks(void **blocks, int t) {
+    for(int i=0; i<t; i++) {
+        free(blocks[i]);
+    }
+}
+
 uint8_t** image_processing(uint8_t *image, int cant) {
 
     //recibo la imagen (array de uint8_t) y su tamaño
@@ -51,6 +57,9 @@ uint8_t** image_processing(uint8_t *image, int cant) {
         printf("\n");*/
     }
 
+    free_blocks((void**)blocks, t);
+    free(blocks);
+
     //genero las shadows a partir de las sub-shadows
 
     uint8_t** S = malloc(2*t*n*sizeof(uint8_t));
@@ -65,6 +74,9 @@ uint8_t** image_processing(uint8_t *image, int cant) {
             //printf("%d %d ", S[j][pos-2], S[j][pos-1]);
         }
     }
+
+    free_blocks((void**)vs, t);
+    free(vs);
 
     return S;
      
