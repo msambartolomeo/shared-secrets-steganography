@@ -1,7 +1,4 @@
-enum MODE{
-    DECODE,
-    ENCODE
-};
+enum MODE { DECODE, ENCODE };
 
-char * getModeName(int mode);
-void parseArgs(char * argv[]);
+char *getModeName(int mode);
+void parseArgs(char *argv[]);
