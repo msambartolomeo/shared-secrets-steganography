@@ -23,50 +23,29 @@ sizeof(image)/sizeof(image[0]); uint8_t** shadows = image_processing(image,
 cant);
 } */
 
-void free_blocks(void **blocks, int t) {
-    for (int i = 0; i < t; i++) {
-        free(blocks[i]);
-    }
-    free(blocks);
-}
-
-uint8_t **image_processing(uint8_t *image, int cant, size_t k, size_t n) {
-
+uint8_t **image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
     // recibo la imagen (array de uint8_t) y su tamaño
 
     int block_size = 2 * k - 2;
 
-    if (k < 2 || k > 8 || (cant % block_size != 0)) {
+    if (k < 2 || k > 8 || (len % block_size != 0)) {
         printf("ERROR EN K");
         return NULL;
     }
 
-    // divido la imagen en bloques
-
-    uint8_t **blocks = malloc(cant * sizeof(uint8_t));
-    for (int i = 0; i < cant; i += block_size) {
-        blocks[i / block_size] = malloc(block_size * sizeof(uint8_t));
-        memcpy(blocks[i / block_size], image, block_size);
-        image += block_size;
-    }
-
-    int t = cant / block_size;
+    int t = len / block_size;
 
     // proceso los bloques y genero las "sub-shadows"
-
-    v_ij **vs = malloc(t * n * sizeof(v_ij));
+    v_ij **vs = malloc(t * sizeof(v_ij *));
 
     srand(time(NULL));
-
     for (int i = 0; i < t; i++) {
-        vs[i] = block_processing(blocks[i], k, n);
+        vs[i] = block_processing(&image[i * block_size], k, n);
         /*printf("vs %d:\n", i);
         for(int l=0; l<n; l++)
             printf("%d %d ", vs[i][l].m, vs[i][l].d);
         printf("\n");*/
     }
-
-    free_blocks((void **)blocks, t);
 
     // genero las shadows a partir de las sub-shadows
 
@@ -83,7 +62,10 @@ uint8_t **image_processing(uint8_t *image, int cant, size_t k, size_t n) {
         }
     }
 
-    free_blocks((void **)vs, t);
+    for (int i = 0; i < t; i++) {
+        free(vs[i]);
+    }
+    free(vs);
 
     return S;
 }
