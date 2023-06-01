@@ -1,0 +1,1 @@
+void distribute(char * filename, int k, char * directory);
