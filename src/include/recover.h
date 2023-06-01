@@ -1,0 +1,1 @@
+void recover(char * filename, int k, char * directory);

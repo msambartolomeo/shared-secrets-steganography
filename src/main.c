@@ -20,6 +20,13 @@ int main(int argc, char *argv[]) {
 
     parseArgs(argv);
 
+    if(mode == DISTRIBUTE){
+        distribute(filename, k, outputDir);
+    }
+    else{
+        recover(filename, k, outputDir);
+    }
+
     return 0;
 }
 
@@ -27,9 +34,9 @@ int main(int argc, char *argv[]) {
 
 void parseArgs(char *argv[]) {
     if (strcmp(argv[1], "-d") == 0) {
-        mode = DECODE;
+        mode = DISTRIBUTE;
     } else if (strcmp(argv[1], "-r") == 0) {
-        mode = ENCODE;
+        mode = RECOVER;
     } else {
         fprintf(stderr, "Wrong value for first argument. Must be 'r' or 'd'\n");
         exit(EXIT_FAILURE);
@@ -81,9 +88,9 @@ void parseArgs(char *argv[]) {
 }
 
 char *getModeName(int mode) {
-    if (mode == DECODE) {
+    if (mode == DISTRIBUTE) {
         return "decode";
-    } else if (mode == ENCODE) {
+    } else if (mode == RECOVER) {
         return "encode";
     } else {
         return "error"; // testing purposes
