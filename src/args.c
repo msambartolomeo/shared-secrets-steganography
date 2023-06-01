@@ -17,9 +17,9 @@ char *getModeName(int mode) {
 Args parseArgs(char *argv[]) {
     Args args;
 
-    if (strcmp(argv[1], "-d") == 0) {
+    if (strcmp(argv[1], "d") == 0) {
         args.mode = DISTRIBUTE;
-    } else if (strcmp(argv[1], "-r") == 0) {
+    } else if (strcmp(argv[1], "r") == 0) {
         args.mode = RECOVER;
     } else {
         fprintf(stderr, "Wrong value for first argument. Must be 'r' or 'd'\n");
