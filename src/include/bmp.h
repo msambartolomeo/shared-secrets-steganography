@@ -1,6 +1,5 @@
 #pragma once
 #include <stdint.h>
-#include <stdlib.h>
 
 #define HEADER_SIZE 54
 
@@ -16,9 +15,13 @@ typedef struct BmpImage {
     On error `NULL` is returned and `errno` is set.
     if `errno` = `EINVAL` then the image is not a valid bmp image.
 */
-BmpImage *parse_bmp(const char *path, size_t k);
+BmpImage *parse_bmp(const char *path, uint8_t k);
 
 /*
     Frees the `BmpImage` struct
 */
 void free_bmp(BmpImage *bmp);
+
+void save_k_bmp(BmpImage *bmp, uint8_t k);
+
+uint8_t get_k_bmp(BmpImage *bmp);

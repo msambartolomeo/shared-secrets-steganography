@@ -6,10 +6,11 @@
 
 #define OFFSET_INDEX 0x0A
 #define IMAGE_SIZE_INDEX 0x22
+#define RESERVED_INDEX 0x08
 
 uint32_t bytes_to_u32(uint8_t *buff);
 
-BmpImage *parse_bmp(const char *path, size_t k) {
+BmpImage *parse_bmp(const char *path, uint8_t k) {
     BmpImage *bmp = malloc(sizeof(BmpImage));
     if (bmp == NULL) {
         return NULL;
@@ -87,6 +88,10 @@ void free_bmp(BmpImage *bmp) {
     free(bmp->extra);
     free(bmp);
 }
+
+void save_k_bmp(BmpImage *bmp, uint8_t k) { bmp->header[RESERVED_INDEX] = k; }
+
+uint8_t get_k_bmp(BmpImage *bmp) { return bmp->header[RESERVED_INDEX]; }
 
 uint32_t bytes_to_u32(uint8_t *buff) {
     uint32_t value = 0;
