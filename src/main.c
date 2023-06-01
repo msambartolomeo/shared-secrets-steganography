@@ -1,4 +1,6 @@
 #include "include/test.h"
+#include "include/recover.h"
+#include "include/distribute.h"
 #include <dirent.h>
 #include <main.h>
 #include <stdio.h>

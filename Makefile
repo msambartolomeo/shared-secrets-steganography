@@ -8,7 +8,7 @@ HEADERS = $(wildcard *.h) $(wildcard src/include/*.h)
 INCLUDES = $(addprefix -I ,$(INCLUDE_DIRS))
 OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 
-CFLAGS = -g -fsanitize=address -std=c2x -Wall -pedantic -pedantic-errors -Wextra -Werror -Wno-unused-parameter -Wno-implicit-fallthrough -D_DEFAULT_SOURCE $(INCLUDES)
+CFLAGS = -g -fsanitize=address -std=c2x -Wall -pedantic -pedantic-errors -Wextra -Werror -Wno-unused-parameter -Wno-implicit-fallthrough -lm -D_DEFAULT_SOURCE $(INCLUDES)
 
 all: $(TARGET)
 
