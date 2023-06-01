@@ -9,7 +9,7 @@
 
 uint32_t bytes_to_u32(uint8_t *buff);
 
-BmpImage *parse_bmp(const char *path) {
+BmpImage *parse_bmp(const char *path, size_t k) {
     BmpImage *bmp = malloc(sizeof(BmpImage));
     if (bmp == NULL) {
         return NULL;
@@ -23,7 +23,8 @@ BmpImage *parse_bmp(const char *path) {
 
     // NOTE: Read header
     size_t bytes_read = fread(bmp->header, 1, HEADER_SIZE, file);
-    if (bytes_read != HEADER_SIZE) {
+    if (bytes_read != HEADER_SIZE || bmp->header[0] != 'B' ||
+        bmp->header[1] != 'M') {
         free(bmp);
         fclose(file);
         errno = EINVAL;
@@ -35,8 +36,14 @@ BmpImage *parse_bmp(const char *path) {
     // NOTE: Read extra info
     uint32_t data_size = offset - HEADER_SIZE;
     bmp->extra = malloc(sizeof(uint8_t) * data_size);
+    if (bmp->extra == NULL) {
+        free(bmp);
+        fclose(file);
+        return NULL;
+    }
     bytes_read = fread(bmp->extra, 1, data_size, file);
     if (bytes_read != data_size) {
+        free(bmp->extra);
         free(bmp);
         fclose(file);
         errno = EINVAL;
@@ -45,13 +52,45 @@ BmpImage *parse_bmp(const char *path) {
 
     // NOTE: Read image
     uint32_t image_size = bytes_to_u32(&bmp->header[IMAGE_SIZE_INDEX]);
-    bmp->image = malloc(sizeof(uint8_t) * image_size);
-    bytes_read = fread(bmp->image, 1, data_size, file);
-    if (bytes_read != data_size) {
+    uint8_t *image = malloc(sizeof(uint8_t) * image_size);
+    if (image == NULL) {
+        free(bmp->extra);
+        free(bmp);
+        fclose(file);
+        return NULL;
+    }
+    bytes_read = fread(image, 1, image_size, file);
+    if (bytes_read != image_size) {
+        free(image);
+        free(bmp->extra);
         free(bmp);
         fclose(file);
         errno = EINVAL;
         return NULL;
+    }
+
+    // NOTE: Separate image in blocks
+    uint32_t block_size = 2 * k - 2;
+    if (image_size % block_size != 0) {
+        free(image);
+        free(bmp->extra);
+        free(bmp);
+        fclose(file);
+        errno = EINVAL;
+        return NULL;
+    }
+    bmp->block_count = image_size / block_size;
+    bmp->blocks = malloc(sizeof(BmpBlock) * bmp->block_count);
+    if (bmp->blocks == NULL) {
+        free(image);
+        free(bmp->extra);
+        free(bmp);
+        fclose(file);
+        errno = EINVAL;
+        return NULL;
+    }
+    for (size_t i = 0; i < bmp->block_count; i++) {
+        bmp->blocks[i] = &image[i * block_size];
     }
 
     fclose(file);
@@ -59,7 +98,8 @@ BmpImage *parse_bmp(const char *path) {
 }
 
 void free_bmp(BmpImage *bmp) {
-    free(bmp->image);
+    free(bmp->blocks[0]);
+    free(bmp->blocks);
     free(bmp->extra);
     free(bmp);
 }
