@@ -34,9 +34,14 @@ Args parseArgs(char *argv[]) {
     }
 
     args.filename = malloc(strlen(argv[2]) + 1);
+    if (args.filename == NULL) {
+        perror("malloc error");
+        exit(EXIT_FAILURE);
+    }
     strcpy(args.filename, argv[2]);
     args.k = atoi(argv[3]);
     if (args.k < 3 || args.k > 8) {
+        free(args.filename);
         fprintf(stderr, "k must be a value between 3 and 8.\n");
         exit(EXIT_FAILURE);
     }
@@ -47,6 +52,7 @@ Args parseArgs(char *argv[]) {
     int fileCount = 0;
     DIR *dirp = opendir(argv[4]);
     if (dirp == NULL) {
+        free(args.filename);
         fprintf(stderr, "4th argument must be a directory\n");
         exit(EXIT_FAILURE);
     }
@@ -57,6 +63,7 @@ Args parseArgs(char *argv[]) {
         }
     }
     if (fileCount < args.k) {
+        free(args.filename);
         closedir(dirp);
         fprintf(stderr, "Amount of files in directory is less than k.\n");
         exit(EXIT_FAILURE);
@@ -64,6 +71,11 @@ Args parseArgs(char *argv[]) {
     closedir(dirp);
 
     args.outputDir = malloc(strlen(argv[4]) + 1);
+    if (args.filename == NULL) {
+        free(args.filename);
+        perror("malloc error");
+        exit(EXIT_FAILURE);
+    }
     strcpy(args.outputDir, argv[4]);
 
     // TODO: remove all prints without flags
@@ -71,4 +83,9 @@ Args parseArgs(char *argv[]) {
            args.k, args.outputDir);
 
     return args;
+}
+
+void free_args(Args args) {
+    free(args.filename);
+    free(args.outputDir);
 }

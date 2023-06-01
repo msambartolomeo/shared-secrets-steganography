@@ -21,5 +21,7 @@ int main(int argc, char *argv[]) {
         break;
     }
 
+    free_args(args);
+
     return 0;
 }
