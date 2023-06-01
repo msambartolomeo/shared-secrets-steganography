@@ -1,4 +1,5 @@
 #pragma once
+#include <stddef.h>
 #include <stdint.h>
 
 #define HEADER_SIZE 54
@@ -6,7 +7,9 @@
 typedef struct BmpImage {
     uint8_t header[HEADER_SIZE];
     uint8_t *extra;
+    size_t extra_size;
     uint8_t *image;
+    size_t image_size;
 } BmpImage;
 
 /*
@@ -16,6 +19,11 @@ typedef struct BmpImage {
     if `errno` = `EINVAL` then the image is not a valid bmp image.
 */
 BmpImage *parse_bmp(const char *path, uint8_t k);
+
+/*
+    Outputs the BmpImage into a file
+*/
+int output_bmp(BmpImage *bmp, const char *path);
 
 /*
     Frees the `BmpImage` struct

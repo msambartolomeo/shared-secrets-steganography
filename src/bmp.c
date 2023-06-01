@@ -35,15 +35,15 @@ BmpImage *parse_bmp(const char *path, uint8_t k) {
     uint32_t offset = bytes_to_u32(&bmp->header[OFFSET_INDEX]);
 
     // NOTE: Read extra info
-    uint32_t data_size = offset - HEADER_SIZE;
-    bmp->extra = malloc(sizeof(uint8_t) * data_size);
+    bmp->extra_size = offset - HEADER_SIZE;
+    bmp->extra = malloc(sizeof(uint8_t) * bmp->extra_size);
     if (bmp->extra == NULL) {
         free(bmp);
         fclose(file);
         return NULL;
     }
-    bytes_read = fread(bmp->extra, 1, data_size, file);
-    if (bytes_read != data_size) {
+    bytes_read = fread(bmp->extra, 1, bmp->extra_size, file);
+    if (bytes_read != bmp->extra_size) {
         free(bmp->extra);
         free(bmp);
         fclose(file);
@@ -52,8 +52,8 @@ BmpImage *parse_bmp(const char *path, uint8_t k) {
     }
 
     // NOTE: Verify image size
-    uint32_t image_size = bytes_to_u32(&bmp->header[IMAGE_SIZE_INDEX]);
-    if (image_size % (2 * k - 2) != 0) {
+    bmp->image_size = bytes_to_u32(&bmp->header[IMAGE_SIZE_INDEX]);
+    if (bmp->image_size % (2 * k - 2) != 0) {
         free(bmp->extra);
         free(bmp);
         fclose(file);
@@ -62,15 +62,15 @@ BmpImage *parse_bmp(const char *path, uint8_t k) {
     }
 
     // NOTE: Read image
-    bmp->image = malloc(sizeof(uint8_t) * image_size);
+    bmp->image = malloc(sizeof(uint8_t) * bmp->image_size);
     if (bmp->image == NULL) {
         free(bmp->extra);
         free(bmp);
         fclose(file);
         return NULL;
     }
-    bytes_read = fread(bmp->image, 1, image_size, file);
-    if (bytes_read != image_size) {
+    bytes_read = fread(bmp->image, 1, bmp->image_size, file);
+    if (bytes_read != bmp->image_size) {
         free(bmp->image);
         free(bmp->extra);
         free(bmp);
@@ -81,6 +81,32 @@ BmpImage *parse_bmp(const char *path, uint8_t k) {
 
     fclose(file);
     return bmp;
+}
+
+int output_bmp(BmpImage *bmp, const char *path) {
+    FILE *file = fopen(path, "wb");
+    if (file == NULL) {
+        return 1;
+    }
+
+    uint32_t bytes_written = fwrite(bmp->header, 1, HEADER_SIZE, file);
+    if (bytes_written != HEADER_SIZE) {
+        fclose(file);
+        return 1;
+    }
+
+    bytes_written = fwrite(bmp->extra, 1, bmp->extra_size, file);
+    if (bytes_written != bmp->extra_size) {
+        fclose(file);
+        return 1;
+    }
+
+    bytes_written = fwrite(bmp->image, 1, bmp->image_size, file);
+    if (bytes_written != bmp->image_size) {
+        fclose(file);
+        return 1;
+    }
+    return 0;
 }
 
 void free_bmp(BmpImage *bmp) {
