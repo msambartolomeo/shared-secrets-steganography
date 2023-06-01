@@ -30,6 +30,6 @@ int output_bmp(BmpImage *bmp, const char *path);
 */
 void free_bmp(BmpImage *bmp);
 
-void save_k_bmp(BmpImage *bmp, uint8_t k);
+void save_shadow_number(BmpImage *bmp, uint8_t shadow_number);
 
-uint8_t get_k_bmp(BmpImage *bmp);
+uint8_t get_shadow_number(BmpImage *bmp);

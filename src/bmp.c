@@ -115,9 +115,11 @@ void free_bmp(BmpImage *bmp) {
     free(bmp);
 }
 
-void save_k_bmp(BmpImage *bmp, uint8_t k) { bmp->header[RESERVED_INDEX] = k; }
+void save_shadow_number(BmpImage *bmp, uint8_t shadow_number) {
+    bmp->header[RESERVED_INDEX] = shadow_number;
+}
 
-uint8_t get_k_bmp(BmpImage *bmp) { return bmp->header[RESERVED_INDEX]; }
+uint8_t get_shadow_number(BmpImage *bmp) { return bmp->header[RESERVED_INDEX]; }
 
 uint32_t bytes_to_u32(uint8_t *buff) {
     uint32_t value = 0;
