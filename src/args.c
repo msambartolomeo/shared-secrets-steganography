@@ -69,7 +69,7 @@ Args parseArgs(char *argv[]) {
         exit(EXIT_FAILURE);
     }
     closedir(dirp);
-
+    args.n = fileCount;
     args.outputDir = malloc(strlen(argv[4]) + 1);
     if (args.filename == NULL) {
         free(args.filename);

@@ -6,6 +6,7 @@ typedef struct Args {
     char *filename;
     int k;
     char *outputDir;
+    int n;
 } Args;
 
 Args parseArgs(char *argv[]);

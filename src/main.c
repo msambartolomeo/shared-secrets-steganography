@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 
     switch (args.mode) {
     case DISTRIBUTE:
-        distribute(args.filename, args.k, args.outputDir);
+        distribute(args.filename, args.k, args.n, args.outputDir);
     case RECOVER:
         recover(args.filename, args.k, args.outputDir);
         break;
