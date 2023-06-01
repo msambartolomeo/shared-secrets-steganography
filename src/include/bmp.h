@@ -4,18 +4,14 @@
 
 #define HEADER_SIZE 54
 
-typedef uint8_t *BmpBlock;
-
 typedef struct BmpImage {
     uint8_t header[HEADER_SIZE];
     uint8_t *extra;
-
-    uint32_t block_count;
-    BmpBlock *blocks;
+    uint8_t *image;
 } BmpImage;
 
 /*
-    Parses bmp image from path and divides it into blocks of length 2k-2
+    Parses bmp image from path and checks if it is dividable by 2k-2.
     Returns the image in a `BmpImage` struct.
     On error `NULL` is returned and `errno` is set.
     if `errno` = `EINVAL` then the image is not a valid bmp image.
