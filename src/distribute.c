@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MAX_PATH_LENGTH 256
+
 void distribute(char *filename, int k, int n, char *directory) {
     BmpImage *secret_bmp = parse_bmp(filename, k);
     if (secret_bmp == NULL) {
@@ -38,11 +40,12 @@ void distribute(char *filename, int k, int n, char *directory) {
     struct dirent *ent;
     if ((dir = opendir(directory)) != NULL) {
         int i = 0;
-        /* print all the files and directories within directory */
+        char file_path[MAX_PATH_LENGTH];
         while ((ent = readdir(dir)) != NULL) {
-            /*Abro archivo y genero sombra*/
+            snprintf(file_path, sizeof(file_path), "%s/%s", directory,
+                     ent->d_name);
+
             BmpImage *img = parse_bmp(ent->d_name, k);
-            // TODO: Me suena que hay que concatenar "directory"/"ent->d_name"
             if (hideShadowBytes(img, shadows[i++], k <= 4 ? LSB2 : LSB4) ==
                 -1) {
                 fprintf(stderr, "Error in steganography process.\n");
