@@ -1,6 +1,7 @@
 #include "include/distribute.h"
-#include "bmp.h"
-#include "shadow.h"
+#include "include/bmp.h"
+#include "include/shadow.h"
+#include "include/steganography.h"
 #include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
@@ -42,12 +43,14 @@ void distribute(char *filename, int k, int n, char *directory) {
             /*Abro archivo y genero sombra*/
             BmpImage *img = parse_bmp(ent->d_name, k);
             // TODO: Me suena que hay que concatenar "directory"/"ent->d_name"
-            if (hideShadowBytes(img, shadows[i++]) == -1) {
+            if (hideShadowBytes(img, shadows[i++], k <= 4 ? LSB2 : LSB4) ==
+                -1) {
                 fprintf(stderr, "Error in steganography process.\n");
                 exit(EXIT_FAILURE);
             }
+            save_shadow_number(img, i);
             /* Acá falta, teniendo el arreglo de bytes cambiado, guardarlo en el
-               archivo original imagino que es un memcpy pero por las dudas no
+               archivo original. Imagino que es un memcpy pero por las dudas no
                quiero meter la pata
             */
         }
@@ -55,7 +58,6 @@ void distribute(char *filename, int k, int n, char *directory) {
     } else {
         /* could not open directory */
         perror("");
-        return EXIT_FAILURE;
     }
 
     free_bmp(secret_bmp);
