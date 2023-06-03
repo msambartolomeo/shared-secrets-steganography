@@ -3,15 +3,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-int hideShadowBytes(BmpImage *img, uint8_t *shadow, enum StegMode mode) {
+int hideShadowBytes(BmpImage *img, uint8_t *shadow, enum StegMode mode,
+                    size_t shadowSize) {
     if (img == NULL || shadow == NULL) {
         return -1;
     }
 
     uint8_t *imgBytes = img->image;
     int k = 0;
-    for (long unsigned i = 0; i < sizeof(shadow);
-         i++) { // TODO: Chequear esta condición
+    for (size_t i = 0; i < shadowSize; i++) { // TODO: Chequear esta condición
         int *bits = getBitArray(*(shadow + i));
         if (mode == LSB2) {
             for (int j = 0; j <= 6; j += 2) {
@@ -43,8 +43,8 @@ void setLSB4(uint8_t *byte, uint8_t bit3, uint8_t bit2, uint8_t bit1,
     unsigned char toInclude = 0x00;
 
     toInclude |= (bit3 & 0x01) << 3;
-    toInclude |= (bit2 & 0x01) << 2; // 0000 00 0/1 0
-    toInclude |= (bit1 & 0x01) << 1; // 0000 00 0/1 0
+    toInclude |= (bit2 & 0x01) << 2;
+    toInclude |= (bit1 & 0x01) << 1;
     toInclude |= (bit0 & 0x01);
 
     *(byte) &= 0xF0;

@@ -42,22 +42,27 @@ void distribute(char *filename, int k, int n, char *directory) {
     if ((dir = opendir(directory)) != NULL) {
         int i = 0;
         while ((ent = readdir(dir)) != NULL) {
+            if (strcmp(ent->d_name, ".") == 0 ||
+                strcmp(ent->d_name, "..") == 0) {
+                continue;
+            }
             char *path =
                 (char *)malloc(strlen(ent->d_name) + strlen(directory) + 2);
             strcpy(path, directory);
             strcat(path, "/");
             strcat(path, ent->d_name);
             BmpImage *img = parse_bmp(path, k);
-            if (hideShadowBytes(img, shadows[i++], k <= 4 ? LSB2 : LSB4) ==
+            if (hideShadowBytes(img, shadows[i], k <= 4 ? LSB2 : LSB4, 2 * k) ==
                 -1) {
                 fprintf(stderr, "Error in steganography process.\n");
                 exit(EXIT_FAILURE);
             }
-            save_shadow_number(img, i);
-            /* Acá falta, teniendo el arreglo de bytes cambiado, guardarlo en el
-               archivo original. Imagino que es un memcpy pero por las dudas no
-               quiero meter la pata
-            */
+            save_shadow_number(img, i++);
+
+            if (output_bmp(img, path) != 0) {
+                perror("");
+                exit(EXIT_FAILURE);
+            }
         }
         closedir(dir);
     } else {

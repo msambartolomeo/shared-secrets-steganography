@@ -58,6 +58,10 @@ Args parseArgs(char *argv[]) {
     }
     struct dirent *entry;
     while ((entry = readdir(dirp)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 ||
+            strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
         if (entry->d_type == DT_REG) { /* If the entry is a regular file */
             fileCount++;
         }
