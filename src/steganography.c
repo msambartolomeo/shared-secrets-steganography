@@ -2,7 +2,7 @@
 #include "include/bmp.h"
 #include <stdint.h>
 
-int hideShadowBytes(BmpImage img, uint8_t *shadow, StegMode mode) {
+int hideShadowBytes(BmpImage * img, uint8_t *shadow, enum StegMode mode) {
     if (img == NULL || shadow == NULL) {
         return -1;
     }
@@ -13,7 +13,7 @@ int hideShadowBytes(BmpImage img, uint8_t *shadow, StegMode mode) {
     for (/*byte : shadow*/) { // TODO: Escribir esta condición
         int *bits = getBitArray(*(shadow + i));
         if (mode == LSB2) {
-            for (int j = 0; j < 6; j += 2) {
+            for (int j = 0; j <= 6; j += 2) {
                 setLSB2(
                     imgBytes + (k++), bits[j],
                     bits[j + 1]); // Pone en últimos 2 bits bits[j] y bits[j+1]
@@ -27,10 +27,27 @@ int hideShadowBytes(BmpImage img, uint8_t *shadow, StegMode mode) {
     return 0;
 }
 
-void setLSB2(uint8_t *byte, uint8_t bit1, uint8_t bit0) {}
+void setLSB2(uint8_t *byte, uint8_t bit1, uint8_t bit0){
+    unsigned char toInclude = 0x00;
+    
+    toInclude |= (bit1 & 0x01) << 1; // 0000 00 0/1 0
+    toInclude |= (bit0 & 0x01); // 0000 00x0/1
 
-void setLSB4(uint8_t *byte, uint8_t bit3, uint8_t bit2, uint8_t bit1,
-             uint8_t bit0) {}
+    *(byte) &= 0xFC;
+    *(byte) |= toInclude; 
+}
+
+void setLSB4(uint8_t *byte, uint8_t bit3, uint8_t bit2, uint8_t bit1, uint8_t bit0) {
+    unsigned char toInclude = 0x00;
+    
+    toInclude |= (bit3 & 0x01) << 3;
+    toInclude |= (bit2 & 0x01) << 2; // 0000 00 0/1 0
+    toInclude |= (bit1 & 0x01) << 1; // 0000 00 0/1 0
+    toInclude |= (bit0 & 0x01); 
+
+    *(byte) &= 0xF0;
+    *(byte) |= toInclude; 
+}
 
 int *getBitArray(uint8_t byte) {
     int bits[8];
