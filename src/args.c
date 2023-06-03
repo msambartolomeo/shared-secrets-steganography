@@ -58,6 +58,10 @@ Args parseArgs(char *argv[]) {
     }
     struct dirent *entry;
     while ((entry = readdir(dirp)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 ||
+            strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
         if (entry->d_type == DT_REG) { /* If the entry is a regular file */
             fileCount++;
         }
@@ -69,7 +73,7 @@ Args parseArgs(char *argv[]) {
         exit(EXIT_FAILURE);
     }
     closedir(dirp);
-
+    args.n = fileCount;
     args.outputDir = malloc(strlen(argv[4]) + 1);
     if (args.filename == NULL) {
         free(args.filename);
