@@ -10,7 +10,8 @@ int hideShadowBytes(BmpImage *img, uint8_t *shadow, enum StegMode mode) {
 
     uint8_t *imgBytes = img->image;
     int k = 0;
-    for (int i = 0; i < sizeof(shadow); i++) { // TODO: Chequear esta condición
+    for (long unsigned i = 0; i < sizeof(shadow);
+         i++) { // TODO: Chequear esta condición
         int *bits = getBitArray(*(shadow + i));
         if (mode == LSB2) {
             for (int j = 0; j <= 6; j += 2) {
