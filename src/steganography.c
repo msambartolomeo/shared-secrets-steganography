@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+void getBitArray(uint8_t byte, uint8_t bits[8]);
+
 int hideShadowBytes(BmpImage *img, uint8_t *shadow, enum StegMode mode,
                     size_t shadowSize) {
     if (img == NULL || shadow == NULL) {
@@ -12,7 +14,8 @@ int hideShadowBytes(BmpImage *img, uint8_t *shadow, enum StegMode mode,
     uint8_t *imgBytes = img->image;
     int k = 0;
     for (size_t i = 0; i < shadowSize; i++) { // TODO: Chequear esta condición
-        int *bits = getBitArray(*(shadow + i));
+        uint8_t bits[8];
+        getBitArray(shadow[i], bits);
         if (mode == LSB2) {
             for (int j = 0; j <= 6; j += 2) {
                 setLSB2(
@@ -51,10 +54,8 @@ void setLSB4(uint8_t *byte, uint8_t bit3, uint8_t bit2, uint8_t bit1,
     *(byte) |= toInclude;
 }
 
-int *getBitArray(uint8_t byte) {
-    int *bits = (int *)malloc(sizeof(int) * 8);
+void getBitArray(uint8_t byte, uint8_t bits[8]) {
     for (int i = 7; i >= 0; i--) {
         bits[i] = (byte >> i) & 1;
     }
-    return bits;
 }

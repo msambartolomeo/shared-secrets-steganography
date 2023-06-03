@@ -8,20 +8,21 @@ int main(int argc, char *argv[]) {
 
     if (argc != (4 + 1)) {
         fprintf(stderr, "Wrong number of parameters. Try again.\n");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
     Args args = parseArgs(argv);
 
+    int exit_status;
     switch (args.mode) {
     case DISTRIBUTE:
-        distribute(args.filename, args.k, args.n, args.outputDir);
+        exit_status = distribute(args.filename, args.k, args.n, args.outputDir);
     case RECOVER:
-        recover(args.filename, args.k, args.outputDir);
+        exit_status = recover(args.filename, args.k, args.outputDir);
         break;
     }
 
     free_args(args);
 
-    return 0;
+    return exit_status;
 }

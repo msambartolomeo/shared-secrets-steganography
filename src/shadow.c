@@ -49,7 +49,7 @@ uint8_t **image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
 
     // genero las shadows a partir de las sub-shadows
 
-    uint8_t **S = malloc(t * n * sizeof(v_ij));
+    uint8_t **S = malloc(n * sizeof(uint8_t *));
 
     for (size_t j = 0; j < n; j++) {
         int pos = 0;
@@ -118,4 +118,11 @@ uint8_t polym(uint8_t *block, int val, size_t k) {
         result += modProd(block[i], exp, MODULE);
     }
     return result % 251;
+}
+
+void free_shadows(uint8_t **shadows, size_t shadow_count) {
+    for (size_t i = 0; i < shadow_count; i++) {
+        free(shadows[i]);
+    }
+    free(shadows);
 }

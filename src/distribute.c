@@ -10,7 +10,7 @@
 
 #define MAX_PATH_LENGTH 256
 
-void distribute(char *filename, int k, int n, char *directory) {
+int distribute(char *filename, int k, int n, char *directory) {
     BmpImage *secret_bmp = parse_bmp(filename, k);
     if (secret_bmp == NULL) {
         if (errno == EINVAL) {
@@ -18,12 +18,14 @@ void distribute(char *filename, int k, int n, char *directory) {
         } else {
             perror("Error parsing secret image");
         }
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
     uint8_t **shadows =
         image_processing(secret_bmp->image, secret_bmp->image_size, k, n);
     if (shadows == NULL) {
+        free_bmp(secret_bmp);
         fprintf(stderr, "for compilation\n");
+        return EXIT_FAILURE;
     }
 
     /*
@@ -41,34 +43,40 @@ void distribute(char *filename, int k, int n, char *directory) {
     struct dirent *ent;
     if ((dir = opendir(directory)) != NULL) {
         int i = 0;
+
+        char path[4096];
+
         while ((ent = readdir(dir)) != NULL) {
             if (strcmp(ent->d_name, ".") == 0 ||
                 strcmp(ent->d_name, "..") == 0) {
                 continue;
             }
-            char *path =
-                (char *)malloc(strlen(ent->d_name) + strlen(directory) + 2);
             strcpy(path, directory);
             strcat(path, "/");
             strcat(path, ent->d_name);
             BmpImage *img = parse_bmp(path, k);
             if (hideShadowBytes(img, shadows[i], k <= 4 ? LSB2 : LSB4, 2 * k) ==
                 -1) {
+                free_bmp(img);
                 fprintf(stderr, "Error in steganography process.\n");
-                exit(EXIT_FAILURE);
+                return EXIT_FAILURE;
             }
             save_shadow_number(img, i++);
 
             if (output_bmp(img, path) != 0) {
+                free_bmp(img);
                 perror("");
-                exit(EXIT_FAILURE);
+                return EXIT_FAILURE;
             }
+            free_bmp(img);
         }
         closedir(dir);
     } else {
-        /* could not open directory */
-        perror("");
+        perror("could not open directory");
     }
 
+    free_shadows(shadows, n);
     free_bmp(secret_bmp);
+
+    return EXIT_SUCCESS;
 }

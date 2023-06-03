@@ -1,6 +1,7 @@
 #include "recover.h"
+#include <stdlib.h>
 
-void recover(char *filename, int k, char *directory) {
+int recover(char *filename, int k, char *directory) {
 
     /*
     1. Abrimos directorio (ya chequeamos que hayan archivos)
@@ -21,4 +22,5 @@ void recover(char *filename, int k, char *directory) {
 
 
     */
+    return EXIT_SUCCESS;
 }
