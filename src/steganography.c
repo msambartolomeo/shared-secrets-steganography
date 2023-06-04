@@ -1,26 +1,26 @@
 #include "include/steganography.h"
 #include "include/bmp.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 void getBitArray(uint8_t byte, uint8_t bits[8]);
 
-int hideShadowBytes(BmpImage *img, uint8_t *shadow, enum StegMode mode,
-                    size_t shadowSize) {
+int hideShadowBytes(BmpImage *img, Shadow *shadow, enum StegMode mode) {
     if (img == NULL || shadow == NULL) {
         return -1;
     }
 
     uint8_t *imgBytes = img->image;
-    int k = 0;
-    for (size_t i = 0; i < shadowSize; i++) { // TODO: Chequear esta condición
+    size_t k = 0;
+
+    for (size_t i = 0; i < shadow->size; i++) {
         uint8_t bits[8];
-        getBitArray(shadow[i], bits);
+        getBitArray(shadow->bytes[i], bits);
         if (mode == LSB2) {
             for (int j = 0; j <= 6; j += 2) {
-                setLSB2(
-                    imgBytes + (k++), bits[j],
-                    bits[j + 1]); // Pone en últimos 2 bits bits[j] y bits[j+1]
+                // Pone en últimos 2 bits bits[j] y bits[j+1]
+                setLSB2(imgBytes + (k++), bits[j], bits[j + 1]);
             }
         }
         if (mode == LSB4) {

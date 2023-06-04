@@ -23,7 +23,7 @@ sizeof(image)/sizeof(image[0]); uint8_t** shadows = image_processing(image,
 cant);
 } */
 
-uint8_t **image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
+Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
     // recibo la imagen (array de uint8_t) y su tamaño
 
     int block_size = 2 * k - 2;
@@ -49,15 +49,17 @@ uint8_t **image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
 
     // genero las shadows a partir de las sub-shadows
 
-    uint8_t **S = malloc(n * sizeof(uint8_t *));
+    Shadow *shadows = malloc(n * sizeof(Shadow));
+    size_t shadow_size = 2 * t;
 
     for (size_t j = 0; j < n; j++) {
         int pos = 0;
-        S[j] = malloc(2 * t * sizeof(uint8_t));
+        shadows[j].bytes = malloc(shadow_size * sizeof(uint8_t));
+        shadows[j].size = shadow_size;
         // printf("\nS[%d]:\n", j);
         for (int v = 0; v < t; v++) {
-            S[j][pos++] = vs[v][j].m;
-            S[j][pos++] = vs[v][j].d;
+            shadows[j].bytes[pos++] = vs[v][j].m;
+            shadows[j].bytes[pos++] = vs[v][j].d;
             // printf("%d %d ", S[j][pos-2], S[j][pos-1]);
         }
     }
@@ -67,7 +69,7 @@ uint8_t **image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
     }
     free(vs);
 
-    return S;
+    return shadows;
 }
 
 v_ij *block_processing(uint8_t *block, size_t k, size_t n) {
@@ -120,9 +122,9 @@ uint8_t polym(uint8_t *block, int val, size_t k) {
     return result % 251;
 }
 
-void free_shadows(uint8_t **shadows, size_t shadow_count) {
+void free_shadows(Shadow *shadows, size_t shadow_count) {
     for (size_t i = 0; i < shadow_count; i++) {
-        free(shadows[i]);
+        free(shadows[i].bytes);
     }
     free(shadows);
 }

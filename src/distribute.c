@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_PATH_LENGTH 256
+#define MAX_PATH_LENGTH 4096
 
 int distribute(char *filename, int k, int n, char *directory) {
     BmpImage *secret_bmp = parse_bmp(filename, k);
@@ -20,7 +20,7 @@ int distribute(char *filename, int k, int n, char *directory) {
         }
         return EXIT_FAILURE;
     }
-    uint8_t **shadows =
+    Shadow *shadows =
         image_processing(secret_bmp->image, secret_bmp->image_size, k, n);
     if (shadows == NULL) {
         free_bmp(secret_bmp);
@@ -44,7 +44,7 @@ int distribute(char *filename, int k, int n, char *directory) {
     if ((dir = opendir(directory)) != NULL) {
         int i = 0;
 
-        char path[4096];
+        char path[MAX_PATH_LENGTH];
 
         while ((ent = readdir(dir)) != NULL) {
             if (strcmp(ent->d_name, ".") == 0 ||
@@ -55,8 +55,7 @@ int distribute(char *filename, int k, int n, char *directory) {
             strcat(path, "/");
             strcat(path, ent->d_name);
             BmpImage *img = parse_bmp(path, k);
-            if (hideShadowBytes(img, shadows[i], k <= 4 ? LSB2 : LSB4, 2 * k) ==
-                -1) {
+            if (hideShadowBytes(img, &shadows[i], k <= 4 ? LSB4 : LSB2) == -1) {
                 free_bmp(img);
                 fprintf(stderr, "Error in steganography process.\n");
                 return EXIT_FAILURE;
