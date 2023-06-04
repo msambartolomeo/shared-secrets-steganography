@@ -7,25 +7,8 @@
 #include <string.h>
 #include <time.h>
 
-/*
-int main(void) {
-    //acá recibo la imagen .bmp procesada, como cadena de bytes
-    uint8_t image[] = {0xA0, 0xB1, 0x05, 0x91, 0xAA, 0xFF, 0x01, 0x03, 0x03,
-0x01, 0xFF, 0x01, 0x03, 0x03, 0x01, 0x02, 0x03, 0xFF, 0xA0, 0xB1, 0x05, 0x91,
-0xAA, 0xFF, 0x01, 0x03, 0x03, 0x01, 0xFF, 0x01, 0x03, 0x03, 0x01, 0x02, 0x03,
-0xFF, 0xA0, 0xB1, 0x05, 0x91, 0xAA, 0xFF, 0x01, 0x03, 0x03, 0x01, 0xFF, 0x01,
-0x03, 0x03, 0x01, 0x02, 0x03, 0xFF, 0xA0, 0xB1, 0x05, 0x91, 0xAA, 0xFF, 0x01,
-0x03, 0x03, 0x01, 0xFF, 0x01, 0x03, 0x03, 0x01, 0x02, 0x03, 0xFF, 0xA0, 0xB1,
-0x05, 0x91, 0xAA, 0xFF, 0x01, 0x03, 0x03, 0x01, 0xFF, 0x01, 0x03, 0x03, 0x01,
-0x02, 0x03, 0xFF, 0xA0, 0xB1, 0x05, 0x91, 0xAA, 0xFF, 0x01, 0x03, 0x03, 0x01,
-0xFF, 0x01, 0x03, 0x03, 0x01, 0x02, 0x03, 0xFF}; int cant =
-sizeof(image)/sizeof(image[0]); uint8_t** shadows = image_processing(image,
-cant);
-} */
-
 Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
     // recibo la imagen (array de uint8_t) y su tamaño
-
     int block_size = 2 * k - 2;
 
     if (k < 2 || k > 8 || (len % block_size != 0)) {
@@ -41,14 +24,9 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
     srand(time(NULL));
     for (int i = 0; i < t; i++) {
         vs[i] = block_processing(&image[i * block_size], k, n);
-        /*printf("vs %d:\n", i);
-        for(int l=0; l<n; l++)
-            printf("%d %d ", vs[i][l].m, vs[i][l].d);
-        printf("\n");*/
     }
 
     // genero las shadows a partir de las sub-shadows
-
     Shadow *shadows = malloc(n * sizeof(Shadow));
     size_t shadow_size = 2 * t;
 
@@ -56,11 +34,9 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
         int pos = 0;
         shadows[j].bytes = malloc(shadow_size * sizeof(uint8_t));
         shadows[j].size = shadow_size;
-        // printf("\nS[%d]:\n", j);
         for (int v = 0; v < t; v++) {
             shadows[j].bytes[pos++] = vs[v][j].m;
             shadows[j].bytes[pos++] = vs[v][j].d;
-            // printf("%d %d ", S[j][pos-2], S[j][pos-1]);
         }
     }
 
@@ -73,7 +49,6 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
 }
 
 v_ij *block_processing(uint8_t *block, size_t k, size_t n) {
-
     // recibo un bloque de 2k-2 posiciones
     uint8_t *a_is = malloc(k * sizeof(uint8_t));
     uint8_t *b_is = malloc(k * sizeof(uint8_t));
@@ -100,7 +75,6 @@ v_ij *block_processing(uint8_t *block, size_t k, size_t n) {
 
     // usando los polinomios generados a partir de los bloques, generamos la
     // sub-shadow
-
     for (size_t j = 0; j < n; j++) {
         v_i[j].m = polym(a_is, j + 1, k);
         v_i[j].d = polym(b_is, j + 1, k);
