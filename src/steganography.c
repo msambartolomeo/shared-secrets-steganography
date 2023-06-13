@@ -6,17 +6,30 @@
 
 void getBitArray(uint8_t byte, uint8_t bits[8]);
 
+void printImgBytes(uint8_t *img) {
+    for(int i=0; i<8; i++) {
+        printf("%d", *img);
+    }
+}
+
 int hideShadowBytes(BmpImage *img, Shadow *shadow, enum StegMode mode) {
     if (img == NULL || shadow == NULL) {
         return -1;
     }
 
+    printf("hide shadow bytes\n");
+
     uint8_t *imgBytes = img->image;
     size_t k = 0;
 
+    printf("shadow size: %ld\n", shadow->size);
+
     for (size_t i = 0; i < shadow->size; i++) {
         uint8_t bits[8];
+        //printf("\ngetBitArray!!\n");
         getBitArray(shadow->bytes[i], bits);
+        for(int i=0; i<8; i++)
+            //printf("%d ",bits[i]);
         if (mode == LSB2) {
             for (int j = 0; j <= 6; j += 2) {
                 // Pone en últimos 2 bits bits[j] y bits[j+1]
@@ -24,11 +37,67 @@ int hideShadowBytes(BmpImage *img, Shadow *shadow, enum StegMode mode) {
             }
         }
         if (mode == LSB4) {
+            //printImgBytes(imgBytes + k);
             setLSB4(imgBytes + (k++), bits[0], bits[1], bits[2], bits[3]);
+            //printImgBytes(imgBytes + k - 1);
             setLSB4(imgBytes + (k++), bits[4], bits[5], bits[6], bits[7]);
         }
     }
     return 0;
+}
+
+uint8_t byteFromBits(uint8_t bits[8]) {
+    uint8_t byte = 0;
+    for (int i = 0; i < 8; i++) {
+        byte |= (bits[i] << (7 - i));
+    }
+    return byte;
+}
+
+
+uint8_t *recoverShadow(BmpImage *img, int shadow_size, enum StegMode mode) {
+
+    //tengo la imagen portadora
+    uint8_t *imgBytes = img->image;
+
+    for(size_t i=0; i<img->image_size; i++)
+        printf("%d ", imgBytes[i]);
+
+    uint8_t *shadow = malloc(shadow_size * sizeof(uint8_t));
+
+    size_t k = 0;
+
+    for(int i=0; i<shadow_size; i++) {
+        uint8_t byte_bits[8];
+        if(mode == LSB2) {
+            for(int j=0; j<4; j++) {
+                uint8_t bits[8];
+                getBitArray(imgBytes[k++], bits);
+                byte_bits[j*2] = bits[0];
+                byte_bits[(j*2)+1] = bits[1];
+            }
+        }
+        if(mode == LSB4) {
+            for(int j=0; j<2; j++) {
+                uint8_t bits[8];
+                getBitArray(imgBytes[k++], bits);
+                byte_bits[(1-j)*4] = bits[0];
+                byte_bits[((1-j)*4)+1] = bits[1];
+                byte_bits[((1-j)*4)+2] = bits[2];
+                byte_bits[((1-j)*4)+3] = bits[3];
+            }
+        }
+        if(i<10) {
+            printf("\nbytes\n");
+            for(int z=0; z<8; z++)
+                printf("%d ", byte_bits[z]);
+        }
+        shadow[i] = byteFromBits(byte_bits);
+        
+    }
+
+    return shadow;
+
 }
 
 void setLSB2(uint8_t *byte, uint8_t bit1, uint8_t bit0) {
