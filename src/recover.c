@@ -9,7 +9,9 @@
 #include <string.h>
 
 #define MAX_PATH_LENGTH 4096
-#define IMAGE_SIZE 90000
+#define RESERVED_INDEX 0x08
+
+uint8_t * recover_secret(Shadow * shadows, size_t k);
 
 int recover(char *filename, int k, char *directory) {
 
@@ -33,12 +35,14 @@ int recover(char *filename, int k, char *directory) {
 
     */
 
-    int shadow_size = IMAGE_SIZE * 2 / (2*k-2)
 
     DIR *dir;
     struct dirent *ent;
+
+    Shadow* shadows = malloc(sizeof(Shadow) * k);
+
     if ((dir = opendir(directory)) != NULL) {
-        //int i = 0;
+        int i = 0;
 
         char path[MAX_PATH_LENGTH];
 
@@ -51,15 +55,42 @@ int recover(char *filename, int k, char *directory) {
             strcat(path, "/");
             strcat(path, ent->d_name);
             BmpImage *img = parse_bmp(path, k);
-            printf("header: %d\n", img->header[8]);
+            int shadow_size = (img->extra_size + img->image_size) * 2 / (2*k-2);
+            shadows[i].size = shadow_size;
+            shadows[i].idx = img->header[RESERVED_INDEX];
             uint8_t* shadowRec = recoverShadow(img, shadow_size, k <= 4 ? LSB4 : LSB2);
-            free(shadowRec);
+            shadows[i++].bytes = shadowRec;
             free_bmp(img);
+            //hacer los frees!
         }
         closedir(dir);
+        //uint8_t * secret = recover_secret(shadows);
     } else {
         perror("could not open directory");
     }
 
     return EXIT_SUCCESS;
+}
+
+uint8_t * recover_secret(Shadow * shadows, size_t k) {
+
+    size_t block_count = IMAGE_SIZE * 2 / (2*k-2);
+
+    uint8_t* secret = NULL;
+
+    for(size_t i=0; i<block_count; i++) {
+        v_ij* vs = malloc(sizeof(v_ij) * k);
+        for(size_t j=0; j<k; j++) {
+            vs[j].m = shadows[j].bytes[i*2];
+            vs[j].d = shadows[j].bytes[(i*2)+1];
+        }
+    }
+
+    return secret;
+
+    //cómo recupero el bloque i? --> necesito tomar el iésimo par de bytes de cada sombra
+
+    //tomo el nro de sombra
+
+
 }

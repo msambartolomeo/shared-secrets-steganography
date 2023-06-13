@@ -60,7 +60,7 @@ int distribute(char *filename, int k, int n, char *directory) {
                 fprintf(stderr, "Error in steganography process.\n");
                 return EXIT_FAILURE;
             }
-            save_shadow_number(img, i++);
+            save_shadow_number(img, shadows[i].idx);
 
             if (output_bmp(img, path) != 0) {
                 free_bmp(img);

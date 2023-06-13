@@ -38,6 +38,7 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
             shadows[j].bytes[pos++] = vs[v][j].m;
             shadows[j].bytes[pos++] = vs[v][j].d;
         }
+        shadows[j].idx = j;
     }
 
     for (int i = 0; i < t; i++) {
@@ -101,4 +102,41 @@ void free_shadows(Shadow *shadows, size_t shadow_count) {
         free(shadows[i].bytes);
     }
     free(shadows);
+}
+
+uint8_t * lagrange(uint8_t *vs, size_t k, size_t *idxs) {
+
+}
+
+uint8_t * recover_secret(Shadow * shadows, size_t k) {
+
+    size_t block_count = shadows[0].size / 2; 
+    size_t* shadow_idxs = malloc(sizeof(size_t) * k);
+
+    for(size_t i=0; i<k; i++) {
+        shadow_idxs[i] = shadows[i].idx;
+    }
+
+    uint8_t* secret = malloc(sizeof(uint8_t) * block_count * k);
+
+    size_t bytes = 0;
+
+    for(size_t i=0; i<block_count; i++) {
+        //para cada bloque, tengo que agarrar 2 bytes de cada sombra
+        v_ij* vs = malloc(sizeof(v_ij) * k);
+        for(size_t j=0; j<k; j++) {
+            vs[j].m = shadows[j].bytes[i*2];
+            vs[j].d = shadows[j].bytes[(i*2)+1];
+        }
+        //con esos dos bytes de cada sombra reconstruyo los polinomios y obtengo los bytes del bloque
+        uint8_t *coeffs = lagrange(vs, k, shadow_idxs);
+        for(size_t j=0; j<k; j++) {
+            secret[bytes+j] = coeffs[j];
+        }
+        bytes += k;
+    }
+
+    return secret;
+
+
 }
