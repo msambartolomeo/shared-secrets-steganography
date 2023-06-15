@@ -55,18 +55,18 @@ uint8_t *recoverShadow(BmpImage *img, int shadow_size, enum StegMode mode) {
             for (int j = 0; j < 4; j++) {
                 uint8_t bits[8];
                 getBitArray(imgBytes[k++], bits);
-                byte_bits[j * 2] = bits[0];
-                byte_bits[(j * 2) + 1] = bits[1];
+                byte_bits[j * 2] = bits[6];
+                byte_bits[(j * 2) + 1] = bits[7];
             }
         }
         if (mode == LSB4) {
             for (int j = 0; j < 2; j++) {
                 uint8_t bits[8];
                 getBitArray(imgBytes[k++], bits);
-                byte_bits[(1 - j) * 4] = bits[0];
-                byte_bits[((1 - j) * 4) + 1] = bits[1];
-                byte_bits[((1 - j) * 4) + 2] = bits[2];
-                byte_bits[((1 - j) * 4) + 3] = bits[3];
+                byte_bits[j * 4] = bits[4];
+                byte_bits[(j * 4) + 1] = bits[5];
+                byte_bits[(j * 4) + 2] = bits[6];
+                byte_bits[(j * 4) + 3] = bits[7];
             }
         }
         shadow[i] = byteFromBits(byte_bits);
@@ -100,6 +100,6 @@ void setLSB4(uint8_t *byte, uint8_t bit3, uint8_t bit2, uint8_t bit1,
 
 void getBitArray(uint8_t byte, uint8_t bits[8]) {
     for (int i = 7; i >= 0; i--) {
-        bits[i] = (byte >> i) & 1;
+        bits[7 - i] = (byte >> i) & 1;
     }
 }
