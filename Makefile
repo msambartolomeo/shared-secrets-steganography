@@ -20,9 +20,6 @@ $(OBJ_DIR)/%.o: %.c $(HEADERS)
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-run: all
-	./$(TARGET_DIR)/$(TARGET)
-	
 clean:
 	@rm -Rf $(OBJ_DIR) $(TARGET) $(TARGET_DIR)
 
