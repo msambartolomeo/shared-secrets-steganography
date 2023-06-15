@@ -9,7 +9,6 @@
 #include <string.h>
 
 #define MAX_PATH_LENGTH 4096
-#define RESERVED_INDEX 0x08
 
 int recover(char *filename, int k, char *directory) {
 
@@ -44,8 +43,7 @@ int recover(char *filename, int k, char *directory) {
         char path[MAX_PATH_LENGTH];
 
         while ((ent = readdir(dir)) != NULL && i < k) {
-            if (strcmp(ent->d_name, ".") == 0 ||
-                strcmp(ent->d_name, "..") == 0) {
+            if (ent->d_type != DT_REG) {
                 continue;
             }
             strcpy(path, directory);
@@ -54,7 +52,7 @@ int recover(char *filename, int k, char *directory) {
             BmpImage *img = parse_bmp(path, k);
             int shadow_size = (img->image_size) * 2 / (2 * k - 2);
             shadows[i].size = shadow_size;
-            shadows[i].idx = img->header[RESERVED_INDEX];
+            shadows[i].idx = get_shadow_number(img);
             uint8_t *shadowRec =
                 recoverShadow(img, shadow_size, k <= 4 ? LSB4 : LSB2);
             shadows[i++].bytes = shadowRec;
