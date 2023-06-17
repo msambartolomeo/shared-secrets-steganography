@@ -41,6 +41,11 @@ int recover(char *filename, int k, char *directory) {
         int i = 0;
 
         char path[MAX_PATH_LENGTH];
+        BmpImage *new_img = malloc(sizeof(BmpImage));
+        if (new_img == NULL) {
+            perror("Could not allocate memory for new image");
+            return EXIT_FAILURE;
+        }
 
         while ((ent = readdir(dir)) != NULL && i < k) {
             if (ent->d_type != DT_REG) {
@@ -50,7 +55,14 @@ int recover(char *filename, int k, char *directory) {
             strcat(path, "/");
             strcat(path, ent->d_name);
             BmpImage *img = parse_bmp(path, k);
-            int shadow_size = (img->image_size) * 2 / (2 * k - 2);
+            // Tomamos la primera imagen como base
+            if (i == 0) {
+                memcpy(new_img->header, img->header, HEADER_SIZE);
+                new_img->extra = malloc(sizeof(uint8_t) * img->extra_size);
+                memcpy(new_img->extra, img->extra, img->extra_size);
+                new_img->extra_size = img->extra_size;
+            }
+            int shadow_size = (img->image_size) / (k - 1);
             shadows[i].size = shadow_size;
             shadows[i].idx = get_shadow_number(img);
             uint8_t *shadowRec =
@@ -60,9 +72,17 @@ int recover(char *filename, int k, char *directory) {
         }
         closedir(dir);
         Secret secret = recover_secret(shadows, k);
+
+        new_img->image = secret.bytes;
+        new_img->image_size = secret.size;
+
+        output_bmp(new_img, filename);
+
+        free_bmp(new_img);
+
         free_shadows(shadows, k);
     } else {
-        perror("could not open directory");
+        perror("Could not open directory");
     }
 
     return EXIT_SUCCESS;
