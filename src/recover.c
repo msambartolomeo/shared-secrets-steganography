@@ -59,12 +59,8 @@ int recover(char *filename, int k, char *directory) {
             free_bmp(img);
         }
         closedir(dir);
-        uint8_t *secret = recover_secret(shadows, k);
-        for (int i = 0; i < 10; i++) {
-            printf("%d ", secret[i]);
-        }
+        Secret secret = recover_secret(shadows, k);
         free_shadows(shadows, k);
-        free(secret);
     } else {
         perror("could not open directory");
     }

@@ -229,7 +229,7 @@ int *factorize(int *factors, int size) {
     return coeffs;
 }
 
-uint8_t *recover_secret(Shadow *shadows, size_t k) {
+Secret recover_secret(Shadow *shadows, size_t k) {
 
     // recibo las sombras, que tienen un v_ij (dos bytes -> m y d) por bloque
     // cada una
@@ -273,5 +273,6 @@ uint8_t *recover_secret(Shadow *shadows, size_t k) {
 
     free(shadow_idxs);
 
-    return secret;
+    Secret s = {.size = bytes, .bytes = secret};
+    return s;
 }
