@@ -110,6 +110,26 @@ void free_shadows(Shadow *shadows, size_t shadow_count) {
     free(shadows);
 }
 
+uint8_t checkForCheating(int ai1, int ai0, int bi1, int bi0){
+    for(int i = 0; i < MODULE; i++){
+        if(
+            modAdd(modProd(i, ai0, MODULE), bi0, MODULE) == 0
+            &&
+            modAdd(modProd(i, ai1, MODULE), bi1, MODULE) == 0
+        ){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int convertToPositive(int num) {
+    while (num < 0) {
+        num += MODULE;
+    }
+    return num;
+}
+
 int *lagrange(v_ij *vs, int k, size_t *idxs) {
 
     int size = 2 * k - 2;
@@ -135,11 +155,9 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
             }
         }
 
-
         if (div < 0) {
             div = (div % MODULE) + MODULE;
         }
-
 
         int multiplier_f = modDiv(yf, div, MODULE);
         int multiplier_g = modDiv(yg, div, MODULE);
@@ -163,11 +181,13 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
             coeffs[j] %= MODULE;
         }
 
+        // ACA TENGO LOS COEFICIENTES DE F DESCENDIENTES
+
         // luego, agarro los k-2 restantes del polinomio g, ignorando los
         // últimos dos (los que multiplican a x^1 y x^0)
 
-        int *current_coeffs_g = factorize(factors, k);    
-        
+        int *current_coeffs_g = factorize(factors, k);
+
         for (int j = k; j < size; j++) {
             current_coeffs_g[size - j - 1] *= multiplier_g;
             current_coeffs_g[size - j - 1] %= MODULE;
@@ -177,8 +197,16 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
 
             coeffs[j] += current_coeffs_g[size - j - 1];
             coeffs[j] %= MODULE;
-            
-            
+        }
+
+        int ai0 = convertToPositive(current_coeffs_f[k-1]);
+        int ai1 = convertToPositive(current_coeffs_f[k-2]);
+        int bi0 = convertToPositive(current_coeffs_g[k-1]);
+        int bi1 = convertToPositive(current_coeffs_g[k-2]);
+
+        if(checkForCheating(ai1, ai0,bi1, bi0) != 0) 
+        {
+            exit(1);
         }
 
         free(factors);
@@ -265,6 +293,7 @@ Secret recover_secret(Shadow *shadows, size_t k) {
         // con esos dos bytes de cada sombra reconstruyo los polinomios y
         // obtengo los bytes del bloque
         int *coeffs = lagrange(vs, k, shadow_idxs);
+        // printPolynomial(coeffs, k - 1);
         // voy construyendo el secreto
         for (size_t j = 0; j < size; j++) {
             secret[bytes + j] = (uint8_t)coeffs[j];
@@ -278,4 +307,20 @@ Secret recover_secret(Shadow *shadows, size_t k) {
 
     Secret s = {.size = bytes, .bytes = secret};
     return s;
+}
+
+void printPolynomial(int *coefficients, int degree) {
+    int i;
+
+    // Print the coefficients in descending order
+    for (i = degree; i >= 0; i--) {
+        printf("%dx^%d ", coefficients[i], i);
+
+        // Print a plus sign if there are more terms
+        if (i > 0) {
+            printf("+ ");
+        }
+    }
+
+    printf("\n");
 }

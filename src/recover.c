@@ -28,8 +28,6 @@ int recover(char *filename, int k, char *directory) {
     entre 1 y número de bloques t) y otro con los di,j
 
     5. Tomamos puntos (1, m1,j), (2, m2,j)... e interpolamos con Lagrange
-
-
     */
 
     DIR *dir;
