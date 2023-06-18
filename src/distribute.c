@@ -24,7 +24,7 @@ int distribute(char *filename, int k, int n, char *directory) {
         image_processing(secret_bmp->image, secret_bmp->image_size, k, n);
     if (shadows == NULL) {
         free_bmp(secret_bmp);
-        fprintf(stderr, "for compilation\n");
+        fprintf(stderr, "Unexpected error.\n");
         return EXIT_FAILURE;
     }
 
@@ -54,6 +54,25 @@ int distribute(char *filename, int k, int n, char *directory) {
             strcat(path, "/");
             strcat(path, ent->d_name);
             BmpImage *img = parse_bmp(path, k);
+            if (img == NULL) {
+                if (errno == EINVAL) {
+                    // Imágen no válida
+                    fprintf(stderr,
+                            "File %s is not a valid bmp image, ignoring it.",
+                            path);
+                    continue;
+                } else {
+                    // Error de malloc, de apertura del archivo, o de lectura.
+                    fprintf(stderr, "Unexpected error while parsing file %s\n",
+                            path);
+                    perror("Unexpected error.\n");
+                    free_shadows(shadows, i);
+                    free_bmp(secret_bmp);
+                    closedir(dir);
+                    return EXIT_FAILURE;
+                }
+            }
+
             if (hideShadowBytes(img, &shadows[i], k <= 4 ? LSB4 : LSB2) == -1) {
                 free_bmp(img);
                 fprintf(stderr, "Error in steganography process.\n");
@@ -70,7 +89,7 @@ int distribute(char *filename, int k, int n, char *directory) {
         }
         closedir(dir);
     } else {
-        perror("could not open directory");
+        perror("Could not open directory.");
     }
 
     free_shadows(shadows, n);

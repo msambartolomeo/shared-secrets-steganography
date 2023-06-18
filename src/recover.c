@@ -59,11 +59,16 @@ int recover(char *filename, int k, char *directory) {
             BmpImage *img = parse_bmp(path, k);
             if (img == NULL) {
                 if (errno == EINVAL) {
-                    // La imagen no es un bmp válido, ignoramos
+                    // Imágen no válida
+                    fprintf(stderr,
+                            "File %s is not a valid bmp image, ignoring it.",
+                            path);
                     continue;
                 } else {
-                    // Falló un malloc, no se pudo abrir el archivo,
-                    // o error de lectura
+                    // Error de malloc, de apertura del archivo, o de lectura.
+                    fprintf(stderr, "Unexpected error while parsing file %s\n",
+                            path);
+                    perror("Unexpected error.\n");
                     free_bmp(new_img);
                     closedir(dir);
                     free_shadows(shadows, i);
