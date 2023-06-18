@@ -110,13 +110,10 @@ void free_shadows(Shadow *shadows, size_t shadow_count) {
     free(shadows);
 }
 
-uint8_t checkForCheating(int ai1, int ai0, int bi1, int bi0){
-    for(int i = 0; i < MODULE; i++){
-        if(
-            modAdd(modProd(i, ai0, MODULE), bi0, MODULE) == 0
-            &&
-            modAdd(modProd(i, ai1, MODULE), bi1, MODULE) == 0
-        ){
+uint8_t checkForCheating(int ai1, int ai0, int bi1, int bi0) {
+    for (int i = 0; i < MODULE; i++) {
+        if (modAdd(modProd(i, ai0, MODULE), bi0, MODULE) == 0 &&
+            modAdd(modProd(i, ai1, MODULE), bi1, MODULE) == 0) {
             return 0;
         }
     }
@@ -199,13 +196,12 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
             coeffs[j] %= MODULE;
         }
 
-        int ai0 = convertToPositive(current_coeffs_f[k-1]);
-        int ai1 = convertToPositive(current_coeffs_f[k-2]);
-        int bi0 = convertToPositive(current_coeffs_g[k-1]);
-        int bi1 = convertToPositive(current_coeffs_g[k-2]);
+        int ai0 = convertToPositive(current_coeffs_f[k - 1]);
+        int ai1 = convertToPositive(current_coeffs_f[k - 2]);
+        int bi0 = convertToPositive(current_coeffs_g[k - 1]);
+        int bi1 = convertToPositive(current_coeffs_g[k - 2]);
 
-        if(checkForCheating(ai1, ai0,bi1, bi0) != 0) 
-        {
+        if (checkForCheating(ai1, ai0, bi1, bi0) != 0) {
             exit(1);
         }
 

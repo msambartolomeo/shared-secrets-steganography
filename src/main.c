@@ -20,12 +20,19 @@ int main(int argc, char *argv[]) {
         if (exit_status == EXIT_SUCCESS)
             printf("Distributed secret image %s into %d shares in %s\n",
                    args.filename, args.n, args.outputDir);
+        else
+            printf(
+                "Failed to distribute secret image %s into %d shares in %s\n",
+                args.filename, args.n, args.outputDir);
         break;
     case RECOVER:
         exit_status = recover(args.filename, args.k, args.outputDir);
         if (exit_status == EXIT_SUCCESS)
             printf("Recovered image %s from %d shares in %s\n", args.filename,
                    args.k, args.outputDir);
+        else
+            printf("Failed to recover image %s from %d shares in %s\n",
+                   args.filename, args.k, args.outputDir);
         break;
     }
 
