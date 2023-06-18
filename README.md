@@ -67,7 +67,7 @@ El programa leerá la imagen a esconder y generará `n` sombras, donde `n` es la
 
 Este método de ocultamiento se realiza mediante el método de esteganografía **_LSB_** (_Least Significant Bit_), donde se modifican los _X_ bits menos significativos de cada byte. En particular, se utiliza _LSB4_ para valores de `k` iguales a 3 o 4, y _LSB2_ para valores entre 5 y 8. De esta forma garantizamos que siempre se pueda ocultar cada sombra en la imagen portadora correspondiente.
 
-Por último, se añade un número de sombra en la sección adicional del formato _.bmp_ de cada imagen portadora, para poder identificar qué sombra se encuentra en cada imagen. Esto se hace en el el _offset_ `0x08` del archivo, un espacio reservado para la aplicación creadora de la imagen.
+Por último, se añade un número de sombra en la sección adicional del formato _.bmp_ de cada imagen portadora, para poder identificar qué sombra se encuentra en cada imagen. Esto se hace en el _offset_ `0x08` del archivo, un espacio reservado para la aplicación creadora de la imagen.
 
 ### **Recuperar una imagen secreta a partir de las sombras**:
 
@@ -77,7 +77,7 @@ Este modo de ejecución se realiza de la siguiente manera:
 ./target/shared_secret_steganography r <nombre-imagen.bmp> k <directorio donde se encuentran las imágenes a utilizar como sombras>
 ```
 
-El programa leerá el directorio de imágenes portadoras y tomará los primeros `k` archivos que encuentre, ignorando directorios y archivos que no sean _.bmp_. Luego, generará los polinomios descriptos en el _paper_ y evaluará el caso de _Cheating_, donde fallará si se detecta alguna sombra inválida. Luego, se reconstruirá la imagen secreta a partir de las sombras, y se guardará en el nombre de imagen especificado.
+El programa leerá el directorio de imágenes portadoras y tomará los primeros `k` archivos que encuentre, ignorando directorios y archivos que no sean _.bmp_. Luego, generará los polinomios descriptos en el _paper_ y evaluará el caso de _cheating_, donde fallará si se detecta alguna sombra inválida. Luego, se reconstruirá la imagen secreta a partir de las sombras, y se guardará en el nombre de imagen especificado.
 
 ## Aclaraciones:
 
