@@ -135,9 +135,11 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
             }
         }
 
+
         if (div < 0) {
             div = (div % MODULE) + MODULE;
         }
+
 
         int multiplier_f = modDiv(yf, div, MODULE);
         int multiplier_g = modDiv(yg, div, MODULE);
@@ -145,40 +147,43 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
         // ya tengo los multiplicadores (suponiendo estructura
         // y(x-a)(x-b)/(x0-a)(x0-b), entonces serían y/(x0-a)(x0-b) )
 
-        int *factor_coeffs = factorize(factors, k);
-        int *current_coeffs = factor_coeffs;
+        int *current_coeffs_f = factorize(factors, k);
 
         // las primeras k posiciones las lleno usando los coeficientes del
         // polinomio f tengo que ir de atrás para adelante porque los
         // coeficientes se guardaron en el estilo ax^2 + bx + c
         for (int j = 0; j < k; j++) {
-            current_coeffs[k - j - 1] *= multiplier_f;
-            current_coeffs[k - j - 1] %= MODULE;
-            if (current_coeffs[k - j - 1] < 0) {
-                current_coeffs[k - j - 1] += MODULE;
+            current_coeffs_f[k - j - 1] *= multiplier_f;
+            current_coeffs_f[k - j - 1] %= MODULE;
+            if (current_coeffs_f[k - j - 1] < 0) {
+                current_coeffs_f[k - j - 1] += MODULE;
             }
 
-            coeffs[j] += current_coeffs[k - j - 1];
+            coeffs[j] += current_coeffs_f[k - j - 1];
             coeffs[j] %= MODULE;
         }
-
-        current_coeffs = factor_coeffs;
 
         // luego, agarro los k-2 restantes del polinomio g, ignorando los
         // últimos dos (los que multiplican a x^1 y x^0)
+
+        int *current_coeffs_g = factorize(factors, k);    
+        
         for (int j = k; j < size; j++) {
-            current_coeffs[size - j - 1] *= multiplier_g;
-            current_coeffs[size - j - 1] %= MODULE;
-            if (current_coeffs[size - j - 1] < 0) {
-                current_coeffs[size - j - 1] += MODULE;
+            current_coeffs_g[size - j - 1] *= multiplier_g;
+            current_coeffs_g[size - j - 1] %= MODULE;
+            if (current_coeffs_g[size - j - 1] < 0) {
+                current_coeffs_g[size - j - 1] += MODULE;
             }
 
-            coeffs[j] += current_coeffs[size - j - 1];
+            coeffs[j] += current_coeffs_g[size - j - 1];
             coeffs[j] %= MODULE;
+            
+            
         }
 
         free(factors);
-        free(factor_coeffs);
+        free(current_coeffs_f);
+        free(current_coeffs_g);
     }
 
     return coeffs;
