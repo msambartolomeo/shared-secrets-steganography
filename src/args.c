@@ -82,10 +82,6 @@ Args parseArgs(char *argv[]) {
     }
     strcpy(args.outputDir, argv[4]);
 
-    // TODO: remove all prints without flags
-    printf("Arguments: %s %s %d %s\n", getModeName(args.mode), args.filename,
-           args.k, args.outputDir);
-
     return args;
 }
 

@@ -1,5 +1,14 @@
-#include "recover.h"
+#include "include/recover.h"
+#include "include/bmp.h"
+#include "include/shadow.h"
+#include "include/steganography.h"
+#include <dirent.h>
+#include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#define MAX_PATH_LENGTH 4096
 
 int recover(char *filename, int k, char *directory) {
 
@@ -19,8 +28,60 @@ int recover(char *filename, int k, char *directory) {
     entre 1 y número de bloques t) y otro con los di,j
 
     5. Tomamos puntos (1, m1,j), (2, m2,j)... e interpolamos con Lagrange
-
-
     */
+
+    DIR *dir;
+    struct dirent *ent;
+
+    Shadow *shadows = malloc(sizeof(Shadow) * k);
+
+    if ((dir = opendir(directory)) != NULL) {
+        int i = 0;
+
+        char path[MAX_PATH_LENGTH];
+        BmpImage *new_img = malloc(sizeof(BmpImage));
+        if (new_img == NULL) {
+            perror("Could not allocate memory for new image");
+            return EXIT_FAILURE;
+        }
+
+        while ((ent = readdir(dir)) != NULL && i < k) {
+            if (ent->d_type != DT_REG) {
+                continue;
+            }
+            strcpy(path, directory);
+            strcat(path, "/");
+            strcat(path, ent->d_name);
+            BmpImage *img = parse_bmp(path, k);
+            // Tomamos la primera imagen como base
+            if (i == 0) {
+                memcpy(new_img->header, img->header, HEADER_SIZE);
+                new_img->extra = malloc(sizeof(uint8_t) * img->extra_size);
+                memcpy(new_img->extra, img->extra, img->extra_size);
+                new_img->extra_size = img->extra_size;
+            }
+            int shadow_size = (img->image_size) / (k - 1);
+            shadows[i].size = shadow_size;
+            shadows[i].idx = get_shadow_number(img);
+            uint8_t *shadowRec =
+                recoverShadow(img, shadow_size, k <= 4 ? LSB4 : LSB2);
+            shadows[i++].bytes = shadowRec;
+            free_bmp(img);
+        }
+        closedir(dir);
+        Secret secret = recover_secret(shadows, k);
+
+        new_img->image = secret.bytes;
+        new_img->image_size = secret.size;
+
+        output_bmp(new_img, filename);
+
+        free_bmp(new_img);
+
+        free_shadows(shadows, k);
+    } else {
+        perror("Could not open directory");
+    }
+
     return EXIT_SUCCESS;
 }

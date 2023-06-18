@@ -47,8 +47,7 @@ int distribute(char *filename, int k, int n, char *directory) {
         char path[MAX_PATH_LENGTH];
 
         while ((ent = readdir(dir)) != NULL) {
-            if (strcmp(ent->d_name, ".") == 0 ||
-                strcmp(ent->d_name, "..") == 0) {
+            if (ent->d_type != DT_REG) {
                 continue;
             }
             strcpy(path, directory);
@@ -60,7 +59,7 @@ int distribute(char *filename, int k, int n, char *directory) {
                 fprintf(stderr, "Error in steganography process.\n");
                 return EXIT_FAILURE;
             }
-            save_shadow_number(img, i++);
+            save_shadow_number(img, shadows[i++].idx);
 
             if (output_bmp(img, path) != 0) {
                 free_bmp(img);
