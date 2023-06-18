@@ -136,11 +136,11 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
         }
 
         if (div < 0) {
-            div += 251;
+            div = (div % MODULE) + MODULE;
         }
 
-        int multiplier_f = (yf * getInverse251(div)) % MODULE;
-        int multiplier_g = (yg * getInverse251(div)) % MODULE;
+        int multiplier_f = modDiv(yf, div, MODULE);
+        int multiplier_g = modDiv(yg, div, MODULE);
 
         // ya tengo los multiplicadores (suponiendo estructura
         // y(x-a)(x-b)/(x0-a)(x0-b), entonces serían y/(x0-a)(x0-b) )
@@ -235,7 +235,6 @@ Secret recover_secret(Shadow *shadows, size_t k) {
     // cada una
 
     size_t block_count = shadows[0].size / 2;
-    printf("block count: %ld\n", block_count);
     size_t *shadow_idxs = malloc(sizeof(size_t) * k);
 
     /*el nro de sombra es la componente x de los puntos para la interpolación,
@@ -244,7 +243,6 @@ Secret recover_secret(Shadow *shadows, size_t k) {
 
     for (size_t i = 0; i < k; i++) {
         shadow_idxs[i] = shadows[i].idx + 1;
-        printf("shadow_idx = %ld\n", shadow_idxs[i]);
     }
 
     size_t size = 2 * k - 2;
