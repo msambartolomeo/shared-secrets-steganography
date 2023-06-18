@@ -34,6 +34,10 @@ int recover(char *filename, int k, char *directory) {
     struct dirent *ent;
 
     Shadow *shadows = malloc(sizeof(Shadow) * k);
+    if (shadows == NULL) {
+        perror("Could not allocate memory for shadows");
+        return EXIT_FAILURE;
+    }
 
     if ((dir = opendir(directory)) != NULL) {
         int i = 0;
@@ -53,6 +57,19 @@ int recover(char *filename, int k, char *directory) {
             strcat(path, "/");
             strcat(path, ent->d_name);
             BmpImage *img = parse_bmp(path, k);
+            if (img == NULL) {
+                if (errno == EINVAL) {
+                    // La imagen no es un bmp válido, ignoramos
+                    continue;
+                } else {
+                    // Falló un malloc, no se pudo abrir el archivo,
+                    // o error de lectura
+                    free_bmp(new_img);
+                    closedir(dir);
+                    free_shadows(shadows, i);
+                    return EXIT_FAILURE;
+                }
+            }
             // Tomamos la primera imagen como base
             if (i == 0) {
                 memcpy(new_img->header, img->header, HEADER_SIZE);
@@ -69,6 +86,14 @@ int recover(char *filename, int k, char *directory) {
             free_bmp(img);
         }
         closedir(dir);
+
+        if (i < k) {
+            fprintf(stderr, "Not enough images to recover secret.\n");
+            free_bmp(new_img);
+            free_shadows(shadows, i);
+            return EXIT_FAILURE;
+        }
+
         Secret secret = recover_secret(shadows, k);
 
         new_img->image = secret.bytes;
@@ -80,7 +105,7 @@ int recover(char *filename, int k, char *directory) {
 
         free_shadows(shadows, k);
     } else {
-        perror("Could not open directory");
+        perror("Could not open directory.");
     }
 
     return EXIT_SUCCESS;
