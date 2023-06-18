@@ -26,6 +26,10 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
 
     // proceso los bloques y genero las "sub-shadows"
     v_ij **vs = malloc(t * sizeof(v_ij *));
+    if(vs == NULL){
+        perror("Malloc error");
+        exit(1);
+    }
 
     srand(time(NULL));
     for (int i = 0; i < t; i++) {
@@ -34,11 +38,19 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
 
     // genero las shadows a partir de las sub-shadows
     Shadow *shadows = malloc(n * sizeof(Shadow));
+    if(shadows == NULL){
+        perror("Malloc error");
+        exit(1);
+    }
     size_t shadow_size = 2 * t;
 
     for (size_t j = 0; j < n; j++) {
         int pos = 0;
         shadows[j].bytes = malloc(shadow_size * sizeof(uint8_t));
+        if(shadows[j].bytes == NULL){
+            perror("Malloc error");
+            exit(1);
+        }
         shadows[j].size = shadow_size;
         for (int v = 0; v < t; v++) {
             shadows[j].bytes[pos++] = vs[v][j].m;
@@ -58,7 +70,15 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
 v_ij *block_processing(uint8_t *block, size_t k, size_t n) {
     // recibo un bloque de 2k-2 posiciones
     uint8_t *a_is = malloc(k * sizeof(uint8_t));
+    if(a_is == NULL){
+        perror("Malloc error");
+        exit(1);
+    }
     uint8_t *b_is = malloc(k * sizeof(uint8_t));
+    if(b_is == NULL){
+        perror("Malloc error");
+        exit(1);
+    }
 
     uint8_t r = 0;
     while (r == 0) {
@@ -79,6 +99,10 @@ v_ij *block_processing(uint8_t *block, size_t k, size_t n) {
     memcpy(b_is + 2, block + k, k - 2);
 
     v_ij *v_i = malloc(n * sizeof(v_ij));
+    if(v_i == NULL){
+        perror("Malloc error");
+        exit(1);
+    }
 
     // usando los polinomios generados a partir de los bloques, generamos la
     // sub-shadow
@@ -136,6 +160,10 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
     polinomio f/g), consigo los coeficientes y los sumo*/
     for (int i = 0; i < k; i++) {
         int *factors = malloc(sizeof(int) * (k - 1));
+        if(factors == NULL){
+            perror("Malloc error");
+            exit(1);
+        }
 
         // en cada v_ij tengo la componente y de cada punto de la interpolación,
         // para los polinomios f y g
@@ -251,6 +279,10 @@ int *factorize(int *factors, int size) {
 
     for (int i = 1; i < size; i++) {
         int *aux = malloc(i * sizeof(int));
+        if(aux == NULL){
+            perror("Malloc error");
+            exit(1);
+        }
         getValue(factors, &coeffs[i], i, size - 1, 0, 0, aux);
         free(aux);
     }
@@ -265,6 +297,10 @@ Secret recover_secret(Shadow *shadows, size_t k) {
 
     size_t block_count = shadows[0].size / 2;
     size_t *shadow_idxs = malloc(sizeof(size_t) * k);
+    if(shadow_idxs == NULL){
+        perror("Malloc error");
+        exit(1);
+    }
 
     /*el nro de sombra es la componente x de los puntos para la interpolación,
     dado que las sombras están compuestas por el conjunto de p(x) para los
@@ -276,12 +312,20 @@ Secret recover_secret(Shadow *shadows, size_t k) {
 
     size_t size = 2 * k - 2;
     uint8_t *secret = malloc(sizeof(uint8_t) * block_count * size);
+    if(secret == NULL){
+        perror("Malloc error");
+        exit(1);
+    }
 
     size_t bytes = 0;
 
     for (size_t i = 0; i < block_count; i++) {
         // para cada bloque, tengo que agarrar 2 bytes de cada sombra
         v_ij *vs = malloc(sizeof(v_ij) * k);
+        if(vs == NULL){
+            perror("Malloc error");
+            exit(1);
+        }
         for (size_t j = 0; j < k; j++) {
             vs[j].m = shadows[j].bytes[i * 2];
             vs[j].d = shadows[j].bytes[(i * 2) + 1];
