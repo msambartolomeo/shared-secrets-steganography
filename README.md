@@ -84,3 +84,4 @@ El programa leerá el directorio de imágenes portadoras y tomará los primeros 
 - La carpeta con las imágenes que se utilizarán como sombras deben tener **exactamente** `n` imagenes de extension _.bmp_, con `n` mayor o igual a `k`, pues se utilizarán todas las imágenes para construir portadoras.
 - La longitud máxima de los _paths_ otorgados para identificar imágenes o directorios es de 4096 caracteres.
 - Las imágenes utilizadas deben tener formato _.bmp_. De no ser así, el programa no podrá esconder ni recuperar las imágenes.
+- Tanto al distribuir la imagen secreta como al recuperarla, se ignorará todo lo que no sea un archivo _.bmp_ en el directorio especificado, incluyendo subdirectorios y archivos de otros formatos.
