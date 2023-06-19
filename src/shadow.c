@@ -180,13 +180,9 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
 
         for (int j = 0; j < k; j++) {
             if (i != j) {
-                div *= (idxs[i] - idxs[j]);
+                div = modProd(div, modSub(idxs[i], idxs[j], MODULE), MODULE);
                 factors[num++] = -(idxs[j]);
             }
-        }
-
-        if (div < 0) {
-            div = (div % MODULE) + MODULE;
         }
 
         int multiplier_f = modDiv(yf, div, MODULE);

@@ -6,7 +6,12 @@ uint32_t modAdd(uint32_t val1, uint32_t val2, uint32_t mod) {
 }
 
 uint32_t modSub(uint32_t val1, uint32_t val2, uint32_t mod) {
-    return (val1 - val2) % mod;
+    int32_t sub = (val1 - val2);
+    int32_t result = sub % (int32_t)mod;
+    if (val1 < val2) {
+        result += mod;
+    }
+    return (uint32_t)result;
 }
 
 uint32_t modProd(uint32_t val1, uint32_t val2, uint32_t mod) {
