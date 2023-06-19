@@ -98,7 +98,10 @@ int recover(char *filename, int k, char *directory) {
 
         if (i < k) {
             fprintf(stderr, "Not enough images to recover secret.\n");
-            free_bmp(new_img);
+            if (i == 0)
+                free(new_img);
+            else
+                free_bmp(new_img);
             free_shadows(shadows, i);
             return EXIT_FAILURE;
         }
