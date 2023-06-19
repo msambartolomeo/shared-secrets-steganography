@@ -67,7 +67,7 @@ El programa leerá la imagen a esconder y generará `n` sombras, donde `n` es la
 
 Este método de ocultamiento se realiza mediante el método de esteganografía **_LSB_** (_Least Significant Bit_), donde se modifican los _X_ bits menos significativos de cada byte. En particular, se utiliza _LSB4_ para valores de `k` iguales a 3 o 4, y _LSB2_ para valores entre 5 y 8. De esta forma garantizamos que siempre se pueda ocultar cada sombra en la imagen portadora correspondiente.
 
-Por último, se añade un número de sombra en la sección adicional del formato _.bmp_ de cada imagen portadora, para poder identificar qué sombra se encuentra en cada imagen. Esto se hace en el _offset_ `0x08` del archivo, un espacio reservado para la aplicación creadora de la imagen.
+Por último, se añade un número de sombra en la sección adicional del formato _.bmp_ de cada imagen portadora, para poder identificar qué sombra se encuentra en cada imagen. Esto se hace en el _offset_ `0x06` del archivo, un espacio reservado de 2 bytes para la aplicación creadora de la imagen, por lo que lo utilizamos para guardar el número de sombra.
 
 ### **Recuperar una imagen secreta a partir de las sombras**:
 

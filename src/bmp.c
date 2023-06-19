@@ -6,7 +6,7 @@
 
 #define OFFSET_INDEX 0x0A
 #define IMAGE_SIZE_INDEX 0x22
-#define RESERVED_INDEX 0x08
+#define RESERVED_INDEX 0x06
 
 uint32_t bytes_to_u32(uint8_t *buff);
 
