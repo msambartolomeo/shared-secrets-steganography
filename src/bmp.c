@@ -54,6 +54,8 @@ BmpImage *parse_bmp(const char *path, uint8_t k) {
     // NOTE: Verify image size
     bmp->image_size = bytes_to_u32(&bmp->header[IMAGE_SIZE_INDEX]);
     if (bmp->image_size % (2 * k - 2) != 0) {
+        fprintf(stderr, "Image size of file %s is not divisible by (2k-2).\n",
+                path);
         free(bmp->extra);
         free(bmp);
         fclose(file);
