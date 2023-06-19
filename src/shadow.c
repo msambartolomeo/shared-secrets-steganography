@@ -15,6 +15,10 @@ int *lagrange(v_ij *vs, int k, size_t *idxs);
 Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
     // recibo la imagen (array de uint8_t) y su tamaño
 
+    for (size_t i = 0; i < len; i++) {
+        image[i] %= MODULE;
+    }
+
     int block_size = 2 * k - 2;
 
     if (k < 2 || k > 8 || (len % block_size != 0)) {
