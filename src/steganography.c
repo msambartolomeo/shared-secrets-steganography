@@ -46,7 +46,7 @@ uint8_t *recoverShadow(BmpImage *img, int shadow_size, enum StegMode mode) {
     uint8_t *imgBytes = img->image;
 
     uint8_t *shadow = malloc(shadow_size * sizeof(uint8_t));
-    if(shadow == NULL){
+    if (shadow == NULL) {
         perror("Malloc error");
         exit(1);
     }

@@ -79,7 +79,7 @@ int recover(char *filename, int k, char *directory) {
             if (i == 0) {
                 memcpy(new_img->header, img->header, HEADER_SIZE);
                 new_img->extra = malloc(sizeof(uint8_t) * img->extra_size);
-                if(new_img->extra == NULL){
+                if (new_img->extra == NULL) {
                     perror("Malloc error");
                     exit(1);
                 }
