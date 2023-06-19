@@ -332,6 +332,7 @@ Secret recover_secret(Shadow *shadows, size_t k) {
     size_t size = 2 * k - 2;
     uint8_t *secret = malloc(sizeof(uint8_t) * block_count * size);
     if (secret == NULL) {
+        free(shadow_idxs);
         perror("Malloc error");
         exit(1);
     }
@@ -342,6 +343,8 @@ Secret recover_secret(Shadow *shadows, size_t k) {
         // para cada bloque, tengo que agarrar 2 bytes de cada sombra
         v_ij *vs = malloc(sizeof(v_ij) * k);
         if (vs == NULL) {
+            free(secret);
+            free(shadow_idxs);
             perror("Malloc error");
             exit(1);
         }
@@ -352,6 +355,13 @@ Secret recover_secret(Shadow *shadows, size_t k) {
         // con esos dos bytes de cada sombra reconstruyo los polinomios y
         // obtengo los bytes del bloque
         int *coeffs = lagrange(vs, k, shadow_idxs);
+        if (coeffs == NULL) {
+            free(secret);
+            free(shadow_idxs);
+            free(vs);
+            // TODO: Return Null instead of exit
+            exit(1);
+        }
         // printPolynomial(coeffs, k - 1);
         // voy construyendo el secreto
         for (size_t j = 0; j < size; j++) {
