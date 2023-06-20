@@ -141,6 +141,9 @@ void free_shadows(Shadow *shadows, size_t shadow_count) {
 uint8_t check_cheating(int ai1, int ai0, int bi1, int bi0) {
     int candidate_0 = mod_div(MODULE - bi0, ai0, MODULE);
     int candidate_1 = mod_div(MODULE - bi1, ai1, MODULE);
+    printf("AI0: %d, BI0: %d \n", ai0, bi0);
+    printf("AI1: %d, BI1: %d \n", ai1, bi1);
+    printf("CANDIDATE 0: %d, CANDIDATE 1: %d \n", candidate_0, candidate_1);
     return candidate_0 != candidate_1;
 }
 
@@ -234,14 +237,32 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
         }
 
         // FIXME: check for cheating not working
-        // int ai0 = convert_positive(current_coeffs_f[k - 1]);
-        // int ai1 = convert_positive(current_coeffs_f[k - 2]);
-        // int bi0 = convert_positive(current_coeffs_g[k - 1]);
-        // int bi1 = convert_positive(current_coeffs_g[k - 2]);
-        //
-        // if (check_cheating(ai1, ai0, bi1, bi0) != 0) {
-        //     exit(1);
-        // }
+        int ai0 = current_coeffs_f[k - 1];
+        int ai1 = current_coeffs_f[k - 2];
+
+        // Calculo b_0 y b_1 pero no los guardo en coeffs
+        // int bi0 = mod_prod(current_coeffs_g[k - 1], multiplier_g, MODULE);
+        // int bi1 = mod_prod(current_coeffs_g[k - 2], multiplier_g, MODULE);
+
+        int bi0 = current_coeffs_g[k - 1];
+        bi0 *= multiplier_g;
+        bi0 %= MODULE;
+        if (bi0 < 0) {
+            bi0 += MODULE;
+        }
+
+        int bi1 = current_coeffs_g[k - 2];
+        bi1 *= multiplier_g;
+        bi1 %= MODULE;
+        if (bi1 < 0) {
+            bi1 += MODULE;
+        }
+
+        if (check_cheating(ai1, ai0, bi1, bi0) != 0) {
+            free(coeffs);
+            printf("Cheating detected! Ending recover.\n");
+            return NULL;
+        }
 
         free(factors);
         free(current_coeffs_f);
