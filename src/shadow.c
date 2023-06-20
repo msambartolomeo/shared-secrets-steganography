@@ -305,7 +305,7 @@ int *factorize(int *factors, int size) {
     return coeffs;
 }
 
-Secret recover_secret(Shadow *shadows, size_t k) {
+Secret *recover_secret(Shadow *shadows, size_t k) {
 
     // recibo las sombras, que tienen un v_ij (dos bytes -> m y d) por bloque
     // cada una
@@ -355,8 +355,7 @@ Secret recover_secret(Shadow *shadows, size_t k) {
             free(secret);
             free(shadow_idxs);
             free(vs);
-            // TODO: Return Null instead of exit
-            exit(1);
+            return NULL;
         }
         // print_polynomial(coeffs, k - 1);
         // voy construyendo el secreto
@@ -370,8 +369,15 @@ Secret recover_secret(Shadow *shadows, size_t k) {
 
     free(shadow_idxs);
 
-    Secret s = {.size = bytes, .bytes = secret};
-    return s;
+    Secret *secret_ptr = malloc(sizeof(Secret));
+    if (secret_ptr == NULL) {
+        perror("Malloc error");
+        return NULL;
+    }
+    secret_ptr->size = bytes;
+    secret_ptr->bytes = secret;
+
+    return secret_ptr;
 }
 
 void print_polynomial(int *coefficients, int degree) {
