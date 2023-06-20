@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *getModeName(int mode) {
+char *get_mode_name(int mode) {
     if (mode == DISTRIBUTE) {
         return "decode";
     } else if (mode == RECOVER) {
@@ -14,7 +14,7 @@ char *getModeName(int mode) {
     }
 }
 
-Args parseArgs(char *argv[]) {
+Args parse_args(char *argv[]) {
     Args args;
 
     if (strcmp(argv[1], "d") == 0) {

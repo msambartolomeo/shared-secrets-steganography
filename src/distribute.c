@@ -73,7 +73,8 @@ int distribute(char *filename, int k, int n, char *directory) {
                 }
             }
 
-            if (hideShadowBytes(img, &shadows[i], k <= 4 ? LSB4 : LSB2) == -1) {
+            if (hide_shadow_bytes(img, &shadows[i], k <= 4 ? LSB4 : LSB2) ==
+                -1) {
                 free_bmp(img);
                 fprintf(stderr, "Error in steganography process.\n");
                 return EXIT_FAILURE;

@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    Args args = parseArgs(argv);
+    Args args = parse_args(argv);
 
     int exit_status;
     switch (args.mode) {

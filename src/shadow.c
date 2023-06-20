@@ -1,5 +1,5 @@
 #include "shadow.h"
-#include "modularOperations.h"
+#include "modular_operations.h"
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -93,8 +93,8 @@ v_ij *block_processing(uint8_t *block, size_t k, size_t n) {
     uint8_t ai0 = *block == 0 ? 1 : *block;
     uint8_t ai1 = *(block + 1) == 0 ? 1 : *(block + 1);
 
-    uint8_t bi0 = MODULE - modProd(r, ai0, MODULE);
-    uint8_t bi1 = MODULE - modProd(r, ai1, MODULE);
+    uint8_t bi0 = MODULE - mod_prod(r, ai0, MODULE);
+    uint8_t bi1 = MODULE - mod_prod(r, ai1, MODULE);
 
     *b_is = bi0;
     *(b_is + 1) = bi1;
@@ -125,8 +125,8 @@ uint8_t polym(uint8_t *block, int val, size_t k) {
     int result = 0;
     int exp;
     for (size_t i = 0; i < k; i++) {
-        exp = modPower(val, i, MODULE);
-        result += modProd(block[i], exp, MODULE);
+        exp = mod_power(val, i, MODULE);
+        result += mod_prod(block[i], exp, MODULE);
     }
     return result % 251;
 }
@@ -138,13 +138,13 @@ void free_shadows(Shadow *shadows, size_t shadow_count) {
     free(shadows);
 }
 
-uint8_t checkForCheating(int ai1, int ai0, int bi1, int bi0) {
-    int candidate_0 = modDiv(MODULE - bi0, ai0, MODULE);
-    int candidate_1 = modDiv(MODULE - bi1, ai1, MODULE);
+uint8_t check_cheating(int ai1, int ai0, int bi1, int bi0) {
+    int candidate_0 = mod_div(MODULE - bi0, ai0, MODULE);
+    int candidate_1 = mod_div(MODULE - bi1, ai1, MODULE);
     return candidate_0 != candidate_1;
 }
 
-int convertToPositive(int num) {
+int convert_positive(int num) {
     while (num < 0) {
         num += MODULE;
     }
@@ -180,13 +180,13 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
 
         for (int j = 0; j < k; j++) {
             if (i != j) {
-                div = modProd(div, modSub(idxs[i], idxs[j], MODULE), MODULE);
+                div = mod_prod(div, mod_sub(idxs[i], idxs[j], MODULE), MODULE);
                 factors[num++] = -(idxs[j]);
             }
         }
 
-        int multiplier_f = modDiv(yf, div, MODULE);
-        int multiplier_g = modDiv(yg, div, MODULE);
+        int multiplier_f = mod_div(yf, div, MODULE);
+        int multiplier_g = mod_div(yg, div, MODULE);
 
         // ya tengo los multiplicadores (suponiendo estructura
         // y(x-a)(x-b)/(x0-a)(x0-b), entonces serían y/(x0-a)(x0-b) )
@@ -234,12 +234,12 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
         }
 
         // FIXME: check for cheating not working
-        // int ai0 = convertToPositive(current_coeffs_f[k - 1]);
-        // int ai1 = convertToPositive(current_coeffs_f[k - 2]);
-        // int bi0 = convertToPositive(current_coeffs_g[k - 1]);
-        // int bi1 = convertToPositive(current_coeffs_g[k - 2]);
+        // int ai0 = convert_positive(current_coeffs_f[k - 1]);
+        // int ai1 = convert_positive(current_coeffs_f[k - 2]);
+        // int bi0 = convert_positive(current_coeffs_g[k - 1]);
+        // int bi1 = convert_positive(current_coeffs_g[k - 2]);
         //
-        // if (checkForCheating(ai1, ai0, bi1, bi0) != 0) {
+        // if (check_cheating(ai1, ai0, bi1, bi0) != 0) {
         //     exit(1);
         // }
 
@@ -358,7 +358,7 @@ Secret recover_secret(Shadow *shadows, size_t k) {
             // TODO: Return Null instead of exit
             exit(1);
         }
-        // printPolynomial(coeffs, k - 1);
+        // print_polynomial(coeffs, k - 1);
         // voy construyendo el secreto
         for (size_t j = 0; j < size; j++) {
             secret[bytes + j] = (uint8_t)coeffs[j];
@@ -374,7 +374,7 @@ Secret recover_secret(Shadow *shadows, size_t k) {
     return s;
 }
 
-void printPolynomial(int *coefficients, int degree) {
+void print_polynomial(int *coefficients, int degree) {
     int i;
 
     // Print the coefficients in descending order

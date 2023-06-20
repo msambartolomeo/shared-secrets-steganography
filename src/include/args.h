@@ -9,6 +9,6 @@ typedef struct Args {
     int n;
 } Args;
 
-Args parseArgs(char *argv[]);
+Args parse_args(char *argv[]);
 
 void free_args(Args args);

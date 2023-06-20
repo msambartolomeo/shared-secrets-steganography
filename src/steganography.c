@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void getBitArray(uint8_t byte, uint8_t bits[8]);
+void get_bit_array(uint8_t byte, uint8_t bits[8]);
 
-int hideShadowBytes(BmpImage *img, Shadow *shadow, enum StegMode mode) {
+int hide_shadow_bytes(BmpImage *img, Shadow *shadow, enum StegMode mode) {
     if (img == NULL || shadow == NULL) {
         return -1;
     }
@@ -16,7 +16,7 @@ int hideShadowBytes(BmpImage *img, Shadow *shadow, enum StegMode mode) {
 
     for (size_t i = 0; i < shadow->size; i++) {
         uint8_t bits[8];
-        getBitArray(shadow->bytes[i], bits);
+        get_bit_array(shadow->bytes[i], bits);
 
         if (mode == LSB2) {
             for (int j = 0; j <= 6; j += 2) {
@@ -32,7 +32,7 @@ int hideShadowBytes(BmpImage *img, Shadow *shadow, enum StegMode mode) {
     return 0;
 }
 
-uint8_t byteFromBits(uint8_t bits[8]) {
+uint8_t byte_from_bits(uint8_t bits[8]) {
     uint8_t byte = 0;
     for (int i = 0; i < 8; i++) {
         byte |= (bits[i] << (7 - i));
@@ -58,7 +58,7 @@ uint8_t *recoverShadow(BmpImage *img, int shadow_size, enum StegMode mode) {
         if (mode == LSB2) {
             for (int j = 0; j < 4; j++) {
                 uint8_t bits[8];
-                getBitArray(imgBytes[k++], bits);
+                get_bit_array(imgBytes[k++], bits);
                 byte_bits[j * 2] = bits[6];
                 byte_bits[(j * 2) + 1] = bits[7];
             }
@@ -66,14 +66,14 @@ uint8_t *recoverShadow(BmpImage *img, int shadow_size, enum StegMode mode) {
         if (mode == LSB4) {
             for (int j = 0; j < 2; j++) {
                 uint8_t bits[8];
-                getBitArray(imgBytes[k++], bits);
+                get_bit_array(imgBytes[k++], bits);
                 byte_bits[j * 4] = bits[4];
                 byte_bits[(j * 4) + 1] = bits[5];
                 byte_bits[(j * 4) + 2] = bits[6];
                 byte_bits[(j * 4) + 3] = bits[7];
             }
         }
-        shadow[i] = byteFromBits(byte_bits);
+        shadow[i] = byte_from_bits(byte_bits);
     }
 
     return shadow;
@@ -102,7 +102,7 @@ void setLSB4(uint8_t *byte, uint8_t bit3, uint8_t bit2, uint8_t bit1,
     *(byte) |= toInclude;
 }
 
-void getBitArray(uint8_t byte, uint8_t bits[8]) {
+void get_bit_array(uint8_t byte, uint8_t bits[8]) {
     for (int i = 7; i >= 0; i--) {
         bits[7 - i] = (byte >> i) & 1;
     }

@@ -24,12 +24,12 @@ static const uint8_t inv251[251] = {
     222, 10,  115, 120, 57,  239, 138, 66,  237, 59,  47,  184, 233, 193, 230,
     114, 25,  223, 94,  215, 209, 50,  188, 167, 125, 250};
 
-uint32_t modAdd(uint32_t val1, uint32_t val2, uint32_t mod);
-uint32_t modSub(uint32_t val1, uint32_t val2, uint32_t mod);
-uint32_t modProd(uint32_t val1, uint32_t val2, uint32_t mod);
-uint32_t modDiv(uint32_t val1, uint32_t val2, uint32_t mod);
-uint32_t modPower(uint32_t val, uint32_t power, uint32_t mod);
+uint32_t mod_add(uint32_t val1, uint32_t val2, uint32_t mod);
+uint32_t mod_sub(uint32_t val1, uint32_t val2, uint32_t mod);
+uint32_t mod_prod(uint32_t val1, uint32_t val2, uint32_t mod);
+uint32_t mod_div(uint32_t val1, uint32_t val2, uint32_t mod);
+uint32_t mod_power(uint32_t val, uint32_t power, uint32_t mod);
 
-uint8_t getInverse251(uint32_t val);
+uint8_t get_mod_inverse(uint32_t val);
 
 #endif
