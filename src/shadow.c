@@ -8,8 +8,8 @@
 #include <time.h>
 
 int *factorize(int *factors, int size);
-void get_coefficient(int *factors, int *result, int n, int size, int index, int dim,
-              int aux[]);
+void get_coefficient(int *factors, int *result, int n, int size, int index,
+                     int dim, int aux[]);
 int *lagrange(v_ij *vs, int k, size_t *idxs);
 
 Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
@@ -60,7 +60,7 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
             shadows[j].bytes[pos++] = vs[v][j].m;
             shadows[j].bytes[pos++] = vs[v][j].d;
         }
-        shadows[j].idx = j+1;
+        shadows[j].idx = j + 1;
     }
 
     for (int i = 0; i < t; i++) {
@@ -255,8 +255,8 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
     return coeffs;
 }
 
-void get_coefficient(int *factors, int *result, int n, int size, int index, int dim,
-              int aux[]) {
+void get_coefficient(int *factors, int *result, int n, int size, int index,
+                     int dim, int aux[]) {
 
     // función recursiva que obtiene todas las particiones de tamaño n para un
     // grupo de tamaño size
