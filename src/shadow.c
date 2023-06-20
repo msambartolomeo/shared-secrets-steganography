@@ -139,11 +139,16 @@ void free_shadows(Shadow *shadows, size_t shadow_count) {
 }
 
 uint8_t check_cheating(int ai1, int ai0, int bi1, int bi0) {
+    // Si Ai0 o Ai1 son 0, los tomo como 1
+    if (ai0 == 0) {
+        ai0 = 1;
+    }
+    if (ai1 == 0) {
+        ai1 = 1;
+    }
+
     int candidate_0 = mod_div(MODULE - bi0, ai0, MODULE);
     int candidate_1 = mod_div(MODULE - bi1, ai1, MODULE);
-    printf("AI0: %d, BI0: %d \n", ai0, bi0);
-    printf("AI1: %d, BI1: %d \n", ai1, bi1);
-    printf("CANDIDATE 0: %d, CANDIDATE 1: %d \n", candidate_0, candidate_1);
     return candidate_0 != candidate_1;
 }
 
@@ -162,6 +167,9 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
         perror("Calloc error");
         return NULL;
     }
+
+    int bi0 = 0;
+    int bi1 = 0;
 
     /*para cada punto de la interpolación, dado por idxs[i] y vs[i].m/d (para
     polinomio f/g), consigo los coeficientes y los sumo*/
@@ -236,37 +244,34 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
             coeffs[j] %= MODULE;
         }
 
-        // FIXME: check for cheating not working
-        int ai0 = current_coeffs_f[k - 1];
-        int ai1 = current_coeffs_f[k - 2];
-
-        // Calculo b_0 y b_1 pero no los guardo en coeffs
-        // int bi0 = mod_prod(current_coeffs_g[k - 1], multiplier_g, MODULE);
-        // int bi1 = mod_prod(current_coeffs_g[k - 2], multiplier_g, MODULE);
-
-        int bi0 = current_coeffs_g[k - 1];
-        bi0 *= multiplier_g;
-        bi0 %= MODULE;
-        if (bi0 < 0) {
-            bi0 += MODULE;
+        int point_b0 = current_coeffs_g[k - 1];
+        point_b0 *= multiplier_g;
+        point_b0 %= MODULE;
+        if (point_b0 < 0) {
+            point_b0 += MODULE;
         }
+        bi0 = mod_add(bi0, point_b0, MODULE);
 
-        int bi1 = current_coeffs_g[k - 2];
-        bi1 *= multiplier_g;
-        bi1 %= MODULE;
-        if (bi1 < 0) {
-            bi1 += MODULE;
+        int point_b1 = current_coeffs_g[k - 2];
+        point_b1 *= multiplier_g;
+        point_b1 %= MODULE;
+        if (point_b1 < 0) {
+            point_b1 += MODULE;
         }
-
-        if (check_cheating(ai1, ai0, bi1, bi0) != 0) {
-            free(coeffs);
-            printf("Cheating detected! Ending recover.\n");
-            return NULL;
-        }
+        bi1 = mod_add(bi1, point_b1, MODULE);
 
         free(factors);
         free(current_coeffs_f);
         free(current_coeffs_g);
+    }
+
+    int ai0 = coeffs[0];
+    int ai1 = coeffs[1];
+
+    if (check_cheating(ai1, ai0, bi1, bi0) != 0) {
+        free(coeffs);
+        fprintf(stderr, "Cheating detected! Ending recover.\n");
+        return NULL;
     }
 
     return coeffs;
