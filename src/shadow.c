@@ -60,7 +60,7 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
             shadows[j].bytes[pos++] = vs[v][j].m;
             shadows[j].bytes[pos++] = vs[v][j].d;
         }
-        shadows[j].idx = j;
+        shadows[j].idx = j+1;
     }
 
     for (int i = 0; i < t; i++) {
@@ -326,7 +326,7 @@ Secret recover_secret(Shadow *shadows, size_t k) {
     polinomios de cada bloque*/
 
     for (size_t i = 0; i < k; i++) {
-        shadow_idxs[i] = shadows[i].idx + 1;
+        shadow_idxs[i] = shadows[i].idx;
     }
 
     size_t size = 2 * k - 2;
