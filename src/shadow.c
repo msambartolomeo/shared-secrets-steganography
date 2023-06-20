@@ -8,7 +8,7 @@
 #include <time.h>
 
 int *factorize(int *factors, int size);
-void getValue(int *factors, int *result, int n, int size, int index, int dim,
+void get_coefficient(int *factors, int *result, int n, int size, int index, int dim,
               int aux[]);
 int *lagrange(v_ij *vs, int k, size_t *idxs);
 
@@ -255,7 +255,7 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
     return coeffs;
 }
 
-void getValue(int *factors, int *result, int n, int size, int index, int dim,
+void get_coefficient(int *factors, int *result, int n, int size, int index, int dim,
               int aux[]) {
 
     // función recursiva que obtiene todas las particiones de tamaño n para un
@@ -279,8 +279,8 @@ void getValue(int *factors, int *result, int n, int size, int index, int dim,
 
     aux[dim] = factors[index];
 
-    getValue(factors, result, n, size, index + 1, dim + 1, aux);
-    getValue(factors, result, n, size, index + 1, dim, aux);
+    get_coefficient(factors, result, n, size, index + 1, dim + 1, aux);
+    get_coefficient(factors, result, n, size, index + 1, dim, aux);
 }
 
 int *factorize(int *factors, int size) {
@@ -302,7 +302,7 @@ int *factorize(int *factors, int size) {
             free(coeffs);
             return NULL;
         }
-        getValue(factors, &coeffs[i], i, size - 1, 0, 0, aux);
+        get_coefficient(factors, &coeffs[i], i, size - 1, 0, 0, aux);
         free(aux);
     }
 
