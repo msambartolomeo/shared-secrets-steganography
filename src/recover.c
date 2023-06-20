@@ -39,86 +39,86 @@ int recover(char *filename, int k, char *directory) {
         return EXIT_FAILURE;
     }
 
-    if ((dir = opendir(directory)) != NULL) {
-        int i = 0;
-
-        char path[MAX_PATH_LENGTH];
-        BmpImage *new_img = malloc(sizeof(BmpImage));
-        if (new_img == NULL) {
-            perror("Could not allocate memory for new image");
-            return EXIT_FAILURE;
-        }
-
-        while ((ent = readdir(dir)) != NULL && i < k) {
-            if (ent->d_type != DT_REG) {
-                continue;
-            }
-            strcpy(path, directory);
-            strcat(path, "/");
-            strcat(path, ent->d_name);
-            BmpImage *img = parse_bmp(path, k);
-            if (img == NULL) {
-                if (errno == EINVAL) {
-                    // Imágen no válida
-                    fprintf(stderr,
-                            "File %s is not a valid bmp image, ignoring it.",
-                            path);
-                    continue;
-                } else {
-                    // Error de malloc, de apertura del archivo, o de lectura.
-                    fprintf(stderr, "Unexpected error while parsing file %s\n",
-                            path);
-                    perror("Unexpected error.\n");
-                    free_bmp(new_img);
-                    closedir(dir);
-                    free_shadows(shadows, i);
-                    return EXIT_FAILURE;
-                }
-            }
-            // Tomamos la primera imagen como base
-            if (i == 0) {
-                memcpy(new_img->header, img->header, HEADER_SIZE);
-                new_img->extra = malloc(sizeof(uint8_t) * img->extra_size);
-                if (new_img->extra == NULL) {
-                    perror("Malloc error");
-                    exit(1);
-                }
-                memcpy(new_img->extra, img->extra, img->extra_size);
-                new_img->extra_size = img->extra_size;
-            }
-            int shadow_size = (img->image_size) / (k - 1);
-            shadows[i].size = shadow_size;
-            shadows[i].idx = get_shadow_number(img);
-            uint8_t *shadowRec =
-                recoverShadow(img, shadow_size, k <= 4 ? LSB4 : LSB2);
-            shadows[i++].bytes = shadowRec;
-            free_bmp(img);
-        }
-        closedir(dir);
-
-        if (i < k) {
-            fprintf(stderr, "Not enough images to recover secret.\n");
-            if (i == 0)
-                free(new_img);
-            else
-                free_bmp(new_img);
-            free_shadows(shadows, i);
-            return EXIT_FAILURE;
-        }
-
-        Secret secret = recover_secret(shadows, k);
-
-        new_img->image = secret.bytes;
-        new_img->image_size = secret.size;
-
-        output_bmp(new_img, filename);
-
-        free_bmp(new_img);
-
-        free_shadows(shadows, k);
-    } else {
+    if ((dir = opendir(directory)) == NULL) {
         perror("Could not open directory.");
     }
+    int i = 0;
 
+    char path[MAX_PATH_LENGTH];
+    BmpImage *new_img = malloc(sizeof(BmpImage));
+    if (new_img == NULL) {
+        perror("Could not allocate memory for new image");
+        return EXIT_FAILURE;
+    }
+
+    while ((ent = readdir(dir)) != NULL && i < k) {
+        if (ent->d_type != DT_REG) {
+            continue;
+        }
+        strcpy(path, directory);
+        strcat(path, "/");
+        strcat(path, ent->d_name);
+        BmpImage *img = parse_bmp(path, k);
+        if (img == NULL) {
+            if (errno == EINVAL) {
+                // Imágen no válida
+                fprintf(stderr,
+                        "File %s is not a valid bmp image, ignoring it.", path);
+                continue;
+            } else {
+                // Error de malloc, de apertura del archivo, o de lectura.
+                fprintf(stderr, "Unexpected error while parsing file %s\n",
+                        path);
+                perror("Unexpected error.\n");
+                free_bmp(new_img);
+                closedir(dir);
+                free_shadows(shadows, i);
+                return EXIT_FAILURE;
+            }
+        }
+        // Tomamos la primera imagen como base
+        if (i == 0) {
+            memcpy(new_img->header, img->header, HEADER_SIZE);
+            new_img->extra = malloc(sizeof(uint8_t) * img->extra_size);
+            if (new_img->extra == NULL) {
+                perror("Malloc error");
+                exit(1);
+            }
+            memcpy(new_img->extra, img->extra, img->extra_size);
+            new_img->extra_size = img->extra_size;
+        }
+        int shadow_size = (img->image_size) / (k - 1);
+        shadows[i].size = shadow_size;
+        shadows[i].idx = get_shadow_number(img);
+        uint8_t *shadowRec =
+            recoverShadow(img, shadow_size, k <= 4 ? LSB4 : LSB2);
+        shadows[i++].bytes = shadowRec;
+        free_bmp(img);
+    }
+    closedir(dir);
+
+    if (i < k) {
+        fprintf(stderr, "Not enough images to recover secret.\n");
+        if (i == 0)
+            free(new_img);
+        else
+            free_bmp(new_img);
+        free_shadows(shadows, i);
+        return EXIT_FAILURE;
+    }
+
+    Secret *secret = recover_secret(shadows, k);
+    free_shadows(shadows, k);
+    if (secret == NULL) {
+        free(new_img->extra);
+        free(new_img);
+        return EXIT_FAILURE;
+    }
+    new_img->image = secret->bytes;
+    new_img->image_size = secret->size;
+
+    output_bmp(new_img, filename);
+    free(secret);
+    free_bmp(new_img);
     return EXIT_SUCCESS;
 }

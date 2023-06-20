@@ -139,6 +139,14 @@ void free_shadows(Shadow *shadows, size_t shadow_count) {
 }
 
 uint8_t check_cheating(int ai1, int ai0, int bi1, int bi0) {
+    // Si Ai0 o Ai1 son 0, los tomo como 1
+    if (ai0 == 0) {
+        ai0 = 1;
+    }
+    if (ai1 == 0) {
+        ai1 = 1;
+    }
+
     int candidate_0 = mod_div(MODULE - bi0, ai0, MODULE);
     int candidate_1 = mod_div(MODULE - bi1, ai1, MODULE);
     return candidate_0 != candidate_1;
@@ -159,6 +167,9 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
         perror("Calloc error");
         return NULL;
     }
+
+    int bi0 = 0;
+    int bi1 = 0;
 
     /*para cada punto de la interpolación, dado por idxs[i] y vs[i].m/d (para
     polinomio f/g), consigo los coeficientes y los sumo*/
@@ -233,19 +244,34 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
             coeffs[j] %= MODULE;
         }
 
-        // FIXME: check for cheating not working
-        // int ai0 = convert_positive(current_coeffs_f[k - 1]);
-        // int ai1 = convert_positive(current_coeffs_f[k - 2]);
-        // int bi0 = convert_positive(current_coeffs_g[k - 1]);
-        // int bi1 = convert_positive(current_coeffs_g[k - 2]);
-        //
-        // if (check_cheating(ai1, ai0, bi1, bi0) != 0) {
-        //     exit(1);
-        // }
+        int point_b0 = current_coeffs_g[k - 1];
+        point_b0 *= multiplier_g;
+        point_b0 %= MODULE;
+        if (point_b0 < 0) {
+            point_b0 += MODULE;
+        }
+        bi0 = mod_add(bi0, point_b0, MODULE);
+
+        int point_b1 = current_coeffs_g[k - 2];
+        point_b1 *= multiplier_g;
+        point_b1 %= MODULE;
+        if (point_b1 < 0) {
+            point_b1 += MODULE;
+        }
+        bi1 = mod_add(bi1, point_b1, MODULE);
 
         free(factors);
         free(current_coeffs_f);
         free(current_coeffs_g);
+    }
+
+    int ai0 = coeffs[0];
+    int ai1 = coeffs[1];
+
+    if (check_cheating(ai1, ai0, bi1, bi0) != 0) {
+        free(coeffs);
+        fprintf(stderr, "Cheating detected! Ending recover.\n");
+        return NULL;
     }
 
     return coeffs;
@@ -305,7 +331,7 @@ int *factorize(int *factors, int size) {
     return coeffs;
 }
 
-Secret recover_secret(Shadow *shadows, size_t k) {
+Secret *recover_secret(Shadow *shadows, size_t k) {
 
     // recibo las sombras, que tienen un v_ij (dos bytes -> m y d) por bloque
     // cada una
@@ -355,8 +381,7 @@ Secret recover_secret(Shadow *shadows, size_t k) {
             free(secret);
             free(shadow_idxs);
             free(vs);
-            // TODO: Return Null instead of exit
-            exit(1);
+            return NULL;
         }
         // print_polynomial(coeffs, k - 1);
         // voy construyendo el secreto
@@ -370,8 +395,15 @@ Secret recover_secret(Shadow *shadows, size_t k) {
 
     free(shadow_idxs);
 
-    Secret s = {.size = bytes, .bytes = secret};
-    return s;
+    Secret *secret_ptr = malloc(sizeof(Secret));
+    if (secret_ptr == NULL) {
+        perror("Malloc error");
+        return NULL;
+    }
+    secret_ptr->size = bytes;
+    secret_ptr->bytes = secret;
+
+    return secret_ptr;
 }
 
 void print_polynomial(int *coefficients, int degree) {
