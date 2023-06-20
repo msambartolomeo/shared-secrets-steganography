@@ -139,13 +139,9 @@ void free_shadows(Shadow *shadows, size_t shadow_count) {
 }
 
 uint8_t checkForCheating(int ai1, int ai0, int bi1, int bi0) {
-    for (int i = 0; i < MODULE; i++) {
-        if (modAdd(modProd(i, ai0, MODULE), bi0, MODULE) == 0 &&
-            modAdd(modProd(i, ai1, MODULE), bi1, MODULE) == 0) {
-            return 0;
-        }
-    }
-    return 1;
+    int candidate_0 = modDiv(MODULE - bi0, ai0, MODULE);
+    int candidate_1 = modDiv(MODULE - bi1, ai1, MODULE);
+    return candidate_0 != candidate_1;
 }
 
 int convertToPositive(int num) {
