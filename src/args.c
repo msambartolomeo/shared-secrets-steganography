@@ -35,7 +35,7 @@ Args parse_args(char *argv[]) {
 
     args.filename = malloc(strlen(argv[2]) + 1);
     if (args.filename == NULL) {
-        perror("malloc error");
+        perror("Malloc error.\n");
         exit(EXIT_FAILURE);
     }
     strcpy(args.filename, argv[2]);
@@ -77,7 +77,7 @@ Args parse_args(char *argv[]) {
     args.outputDir = malloc(strlen(argv[4]) + 1);
     if (args.filename == NULL) {
         free(args.filename);
-        perror("malloc error");
+        perror("Malloc error.\n");
         exit(EXIT_FAILURE);
     }
     strcpy(args.outputDir, argv[4]);

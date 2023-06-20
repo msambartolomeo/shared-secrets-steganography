@@ -85,7 +85,7 @@ BmpImage *parse_bmp(const char *path, uint8_t k) {
     return bmp;
 }
 
-int output_bmp(BmpImage *bmp, const char *path) {
+uint8_t output_bmp(BmpImage *bmp, const char *path) {
     FILE *file = fopen(path, "wb");
     if (file == NULL) {
         return 1;

@@ -35,19 +35,19 @@ int recover(char *filename, int k, char *directory) {
 
     Shadow *shadows = malloc(sizeof(Shadow) * k);
     if (shadows == NULL) {
-        perror("Could not allocate memory for shadows");
+        perror("Could not allocate memory for shadows.\n");
         return EXIT_FAILURE;
     }
 
     if ((dir = opendir(directory)) == NULL) {
-        perror("Could not open directory.");
+        perror("Could not open directory.\n");
     }
     int i = 0;
 
     char path[MAX_PATH_LENGTH];
     BmpImage *new_img = malloc(sizeof(BmpImage));
     if (new_img == NULL) {
-        perror("Could not allocate memory for new image");
+        perror("Could not allocate memory for new image.\n");
         return EXIT_FAILURE;
     }
 
@@ -63,7 +63,8 @@ int recover(char *filename, int k, char *directory) {
             if (errno == EINVAL) {
                 // Imágen no válida
                 fprintf(stderr,
-                        "File %s is not a valid bmp image, ignoring it.", path);
+                        "File %s is not a valid bmp image, ignoring it.\n",
+                        path);
                 continue;
             } else {
                 // Error de malloc, de apertura del archivo, o de lectura.
@@ -81,7 +82,7 @@ int recover(char *filename, int k, char *directory) {
             memcpy(new_img->header, img->header, HEADER_SIZE);
             new_img->extra = malloc(sizeof(uint8_t) * img->extra_size);
             if (new_img->extra == NULL) {
-                perror("Malloc error");
+                perror("Malloc error.\n");
                 exit(1);
             }
             memcpy(new_img->extra, img->extra, img->extra_size);
@@ -117,7 +118,12 @@ int recover(char *filename, int k, char *directory) {
     new_img->image = secret->bytes;
     new_img->image_size = secret->size;
 
-    output_bmp(new_img, filename);
+    if (output_bmp(new_img, filename) != 0) {
+        perror("Could not write output file.\n");
+        free_bmp(new_img);
+        free(secret);
+        return EXIT_FAILURE;
+    }
     free(secret);
     free_bmp(new_img);
     return EXIT_SUCCESS;

@@ -23,7 +23,7 @@ BmpImage *parse_bmp(const char *path, uint8_t k);
 /*
     Outputs the BmpImage into a file
 */
-int output_bmp(BmpImage *bmp, const char *path);
+uint8_t output_bmp(BmpImage *bmp, const char *path);
 
 /*
     Frees the `BmpImage` struct

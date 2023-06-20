@@ -22,7 +22,7 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
     int block_size = 2 * k - 2;
 
     if (k < 2 || k > 8 || (len % block_size != 0)) {
-        printf("ERROR EN K");
+        fprintf(stderr, "Error en la elección de K.\n");
         return NULL;
     }
 
@@ -31,7 +31,7 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
     // proceso los bloques y genero las "sub-shadows"
     v_ij **vs = malloc(t * sizeof(v_ij *));
     if (vs == NULL) {
-        perror("Malloc error");
+        perror("Malloc error.\n");
         exit(1);
     }
 
@@ -43,7 +43,7 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
     // genero las shadows a partir de las sub-shadows
     Shadow *shadows = malloc(n * sizeof(Shadow));
     if (shadows == NULL) {
-        perror("Malloc error");
+        perror("Malloc error.\n");
         exit(1);
     }
     size_t shadow_size = 2 * t;
@@ -52,7 +52,7 @@ Shadow *image_processing(uint8_t *image, size_t len, size_t k, size_t n) {
         int pos = 0;
         shadows[j].bytes = malloc(shadow_size * sizeof(uint8_t));
         if (shadows[j].bytes == NULL) {
-            perror("Malloc error");
+            perror("Malloc error.\n");
             exit(1);
         }
         shadows[j].size = shadow_size;
@@ -75,12 +75,12 @@ v_ij *block_processing(uint8_t *block, size_t k, size_t n) {
     // recibo un bloque de 2k-2 posiciones
     uint8_t *a_is = malloc(k * sizeof(uint8_t));
     if (a_is == NULL) {
-        perror("Malloc error");
+        perror("Malloc error.\n");
         exit(1);
     }
     uint8_t *b_is = malloc(k * sizeof(uint8_t));
     if (b_is == NULL) {
-        perror("Malloc error");
+        perror("Malloc error.\n");
         exit(1);
     }
 
@@ -104,7 +104,7 @@ v_ij *block_processing(uint8_t *block, size_t k, size_t n) {
 
     v_ij *v_i = malloc(n * sizeof(v_ij));
     if (v_i == NULL) {
-        perror("Malloc error");
+        perror("Malloc error.\n");
         exit(1);
     }
 
@@ -164,7 +164,7 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
     int size = 2 * k - 2;
     int *coeffs = calloc(size, sizeof(int));
     if (coeffs == NULL) {
-        perror("Calloc error");
+        perror("Calloc error.\n");
         return NULL;
     }
 
@@ -177,7 +177,7 @@ int *lagrange(v_ij *vs, int k, size_t *idxs) {
         int *factors = malloc(sizeof(int) * (k - 1));
         if (factors == NULL) {
             free(coeffs);
-            perror("Malloc error");
+            perror("Malloc error.\n");
             return NULL;
         }
 
@@ -312,7 +312,7 @@ int *factorize(int *factors, int size) {
 
     int *coeffs = calloc(size, sizeof(int));
     if (coeffs == NULL) {
-        perror("Calloc error");
+        perror("Calloc error.\n");
         return NULL;
     }
     coeffs[0] = 1;
@@ -320,7 +320,7 @@ int *factorize(int *factors, int size) {
     for (int i = 1; i < size; i++) {
         int *aux = malloc(i * sizeof(int));
         if (aux == NULL) {
-            perror("Malloc error");
+            perror("Malloc error.\n");
             free(coeffs);
             return NULL;
         }
@@ -339,7 +339,7 @@ Secret *recover_secret(Shadow *shadows, size_t k) {
     size_t block_count = shadows[0].size / 2;
     size_t *shadow_idxs = malloc(sizeof(size_t) * k);
     if (shadow_idxs == NULL) {
-        perror("Malloc error");
+        perror("Malloc error.\n");
         exit(1);
     }
 
@@ -355,7 +355,7 @@ Secret *recover_secret(Shadow *shadows, size_t k) {
     uint8_t *secret = malloc(sizeof(uint8_t) * block_count * size);
     if (secret == NULL) {
         free(shadow_idxs);
-        perror("Malloc error");
+        perror("Malloc error.\n");
         exit(1);
     }
 
@@ -367,7 +367,7 @@ Secret *recover_secret(Shadow *shadows, size_t k) {
         if (vs == NULL) {
             free(secret);
             free(shadow_idxs);
-            perror("Malloc error");
+            perror("Malloc error.\n");
             exit(1);
         }
         for (size_t j = 0; j < k; j++) {
@@ -397,7 +397,7 @@ Secret *recover_secret(Shadow *shadows, size_t k) {
 
     Secret *secret_ptr = malloc(sizeof(Secret));
     if (secret_ptr == NULL) {
-        perror("Malloc error");
+        perror("Malloc error.\n");
         return NULL;
     }
     secret_ptr->size = bytes;
