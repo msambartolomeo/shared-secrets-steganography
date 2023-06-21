@@ -29,7 +29,7 @@ A su vez, describe cómo recuperar una imagen secreta a partir de estas sombras,
 
 ## Implementación
 
-Para este trabajo, se realizó el desarrollo en el lenguaje C11, y formateado con CLang.
+Para este trabajo, se realizó el desarrollo en el lenguaje C23, y formateado con CLang.
 
 ## Requerimientos
 
