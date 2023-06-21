@@ -405,19 +405,3 @@ Secret *recover_secret(Shadow *shadows, size_t k) {
 
     return secret_ptr;
 }
-
-void print_polynomial(int *coefficients, int degree) {
-    int i;
-
-    // Print the coefficients in descending order
-    for (i = degree; i >= 0; i--) {
-        printf("%dx^%d ", coefficients[i], i);
-
-        // Print a plus sign if there are more terms
-        if (i > 0) {
-            printf("+ ");
-        }
-    }
-
-    printf("\n");
-}
