@@ -47,6 +47,7 @@ int recover(char *filename, int k, char *directory) {
     char path[MAX_PATH_LENGTH];
     BmpImage *new_img = malloc(sizeof(BmpImage));
     if (new_img == NULL) {
+        free(shadows);
         perror("Could not allocate memory for new image.\n");
         return EXIT_FAILURE;
     }
