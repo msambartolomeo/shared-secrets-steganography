@@ -36,7 +36,7 @@ Para este trabajo, se realizó el desarrollo en el lenguaje C23, y formateado co
 Los requerimientos necesarios para correr este proyecto son:
 
 - `make`
-- `gcc`
+- `gcc` o `clang`
 
 ## Compilación
 
